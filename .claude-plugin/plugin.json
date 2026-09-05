@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "d2",
+  "version": "0.1.0",
+  "description": "Render architecture, flow, sequence and data-model diagrams with D2 (d2lang.com) as PNG, SVG or animated GIF, styled consistently from a project or personal style file.",
+  "author": {
+    "name": "ddikman",
+    "url": "https://github.com/ddikman"
+  },
+  "homepage": "https://github.com/ddikman/d2-diagram-plugin#readme",
+  "repository": "https://github.com/ddikman/d2-diagram-plugin",
+  "license": "MIT",
+  "keywords": [
+    "d2",
+    "diagrams",
+    "architecture",
+    "flowchart",
+    "sequence-diagram",
+    "svg",
+    "png",
+    "documentation"
+  ]
+}

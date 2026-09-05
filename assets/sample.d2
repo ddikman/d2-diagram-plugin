@@ -1,0 +1,23 @@
+direction: right
+
+client: Web client {shape: person}
+
+checkout: Checkout service {
+  api: API
+  worker: Worker
+  cache: Cache {shape: cylinder}
+  api -> worker: enqueue
+  worker -> cache: warm
+}
+
+orders: orders {
+  shape: sql_table
+  id: int {constraint: primary_key}
+  user_id: int {constraint: foreign_key}
+  total: decimal
+  status: text
+}
+
+client -> checkout.api: POST /checkout
+checkout.worker -> orders: insert
+checkout.api -> orders: read {style.stroke-dash: 3}
