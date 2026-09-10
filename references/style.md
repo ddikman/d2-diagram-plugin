@@ -44,7 +44,7 @@ slate `#2f3e4e`).
 
 | # | name | ink and edges | shapes and groups | databases | paper |
 |---|---|---|---|---|---|
-| 1 | poster | slate | cyan shapes, teal people, yellow groups | orange-red | warm grey |
+| 1 | poster | slate | cyan shapes, teal people, yellow groups | soft orange | warm grey |
 | 2 | teal | dark teal | light to mid teal | yellow | cool mist |
 | 3 | sunset | dark brown ink, red edges | orange shapes, orange-red people, yellow groups | teal | cream |
 | 4 | ocean | navy | light to mid blue | yellow | pale blue |
