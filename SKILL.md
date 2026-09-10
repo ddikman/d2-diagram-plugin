@@ -7,6 +7,9 @@ description: >-
   animated GIF. Use whenever I ask to diagram, draw, sketch, visualise or map out a system, flow,
   process, pipeline or architecture, or mention D2 or a .d2 file.
 argument-hint: "[what to draw | path/to/file.d2] [as svg|animated]"
+compatibility: >-
+  Needs the d2 CLI (installed on first use if missing: Homebrew on macOS, otherwise the official
+  install script into ~/.local). PNG and GIF output need d2's one-time Chromium download.
 allowed-tools:
   - Bash(d2 *)
   - Read
@@ -24,10 +27,15 @@ therefore reproduces the look anywhere.
 
 ## Setup
 
-d2: !`d2 --version 2>/dev/null || echo "missing: brew install d2"`
+d2: !`d2 --version 2>/dev/null || echo "missing"`
 style: !`ls docs/diagrams/_style.d2 diagrams/_style.d2 2>/dev/null || echo "none yet"`
 
-- If d2 is missing, stop and say so; do not install it yourself.
+- If d2 is missing, install it before anything else and say so in one line. With Homebrew
+  (`command -v brew`): `brew install d2`. Otherwise the official script into a user-writable prefix,
+  no sudo: `curl -fsSL https://d2lang.com/install.sh | sh -s -- --method standalone --prefix ~/.local`,
+  then use `~/.local/bin/d2` for this session and tell me to add `~/.local/bin` to `PATH` if it is
+  not there. On Windows: `scoop install main/d2` or `choco install d2`. Confirm with `d2 --version`
+  and stop only if that still fails.
 - Diagrams live in `docs/diagrams/` when the repo has a `docs/` folder, else in `diagrams/`.
   If that folder has no `_style.d2`, copy mine in and mention it in one line:
   `mkdir -p docs/diagrams && cp "${CLAUDE_SKILL_DIR}/style.d2" docs/diagrams/_style.d2`
