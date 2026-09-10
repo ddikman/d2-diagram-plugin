@@ -14,7 +14,7 @@ diagram answers one question; when a request mixes two, make two diagrams.
 | Lifecycle, modes, transitions | State diagram | Plain shapes for states, `shape: circle` for initial/final, labelled edges for events, `style.stroke-dash` for optional transitions | dagre, `direction: right` |
 | Where something sits in a hierarchy (org, taxonomy, file tree) | Tree | Nesting or edges, `direction: down` | dagre |
 | Compare options side by side, a matrix, a dashboard | Grid | `grid-rows` / `grid-columns` on a container, `grid-gap`; cells are plain shapes with `|md` text | no edges inside grids |
-| The same system in several stages (build-up, rollout, migration) | Steps animation | `steps: { 1: {...}; 2: {...} }`, each step inherits the previous; render gif or animated svg | see output-formats.md |
+| The same system in several stages (build-up, rollout, migration) | Steps animation | `steps: { 1: {...}; 2: {...} }`, each step inherits the previous; render with `--animate-interval` to gif or svg | one file per animation |
 | Alternatives of one baseline (happy path vs error, before vs after) | Scenarios | `scenarios: { error: {...} }` inherits the root board | render one with `--target scenarios.error` or animate |
 | Several views of one system (overview, detail) | Layers | `layers: { detail: {...} }` independent boards; `link: layers.detail` from an overview shape drills down in SVG | render `--target layers.detail` |
 | Data or traffic flowing through a static picture | Animated edges | `style.animated: true` on the connections | SVG only |

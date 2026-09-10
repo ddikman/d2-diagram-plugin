@@ -1,5 +1,12 @@
-# d2 theme: poster — The whole infographic: slate ink, teal and cyan shapes, yellow groups, soft orange databases.
-# Vivid sketch style. Diagrams import this file via ...@_style; edit it freely, it is plain D2.
+# My D2 style: vivid sketch, slate ink, teal and cyan shapes, yellow groups, soft orange databases,
+# warm grey paper. Plain D2: every diagram imports this file with ...@_style, so edit it freely.
+#
+# Which colour key drives what (d2 0.8):
+#   B1 outlines and edges      B2 edges to nested shapes, table column names   B3 people
+#   B4 root containers         B5 shapes inside containers                      B6 root shapes
+#   AA2 PK/FK text             AA4 cylinders, packages                          AB4 steps, pages, documents
+#   N1 labels, table headers   N2 edge labels, column types                     N4 diamonds   N5 queues, hexagons
+#   N7 table bodies, clouds, markdown background
 vars: {
   d2-config: {
     theme-id: 0
@@ -26,7 +33,6 @@ vars: {
       N6: "#d9dfe5"
       N7: "#fbfaf6"
     }
-    data: {default-format: png; animated-format: gif; animate-interval: 1200}
   }
 }
 

@@ -234,8 +234,8 @@ steps: {                  # each step inherits the previous one
 
 Render one board with `--target layers.detail` / `--target scenarios.failure` / `--target steps.2`;
 `--target ''` is the root only. Multi-board files animate with `--animate-interval` (gif or
-animated svg); rendered statically without a target they produce a directory of boards, which is
-why `render.sh` targets the root board by default. A shape with `link: layers.detail` drills
+animated svg); rendered statically without a target they produce a directory of boards, so pass
+`--target ''` for a static picture of the root board. A shape with `link: layers.detail` drills
 down in SVG.
 
 ## Imports
@@ -264,9 +264,9 @@ block comment
 - `"steps" is a reserved keyword`: keys such as `steps`, `layers`, `scenarios`, `vars`, `classes`,
   `style`, `shape`, `label`, `near`, `direction`, `constraint`, `icon`, `link`, `tooltip`, `width`,
   `height`, `grid-rows` are reserved; rename the object (`step1`, `stepsList`).
-- `... is not a valid config`: an unknown key under `d2-config`; plugin settings belong in
-  `d2-config.data`, and `render.sh` reads only `font`, `default-format`, `animated-format`,
-  `animate-interval` from it.
+- `... is not a valid config`: an unknown key under `d2-config`; only `theme-id`, `dark-theme-id`,
+  `sketch`, `layout-engine`, `pad`, `center`, `theme-overrides`, `dark-theme-overrides` and `data`
+  are allowed.
 - `maps must be terminated with }` on one line: use `;` between entries of an inline map.
 - Edge to `api.handler` fails: the child must exist (declare it inside the container first) and the
   edge must use the full path from where it is written.
