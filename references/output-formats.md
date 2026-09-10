@@ -1,8 +1,8 @@
 # Output formats
 
-Always render through `bash "${CLAUDE_PLUGIN_ROOT}/scripts/render.sh" FILE.d2 [options]`. It
-resolves the imported style, adds the font flags d2 cannot read from a file, ignores stray `D2_*`
-environment variables, picks a sensible file name and prints `OUT: <path>`.
+Always render through `bash "${CLAUDE_SKILL_DIR}/scripts/render.sh" FILE.d2 [options]`. It
+resolves the imported style, ignores stray `D2_*` environment variables that would override it,
+picks a sensible file name and prints `OUT: <path>`.
 
 | Option | Effect |
 |---|---|
@@ -18,7 +18,7 @@ environment variables, picks a sensible file name and prints `OUT: <path>`.
 | `--target BOARD` | One board of a multi-board file, e.g. `steps.3`, `scenarios.failure`, `layers.detail`; `''` is the root. |
 | `--all-boards` | Let d2 write a directory with every board as a static image. |
 | `--timeout S` | d2 compile/layout timeout (default 120 s). Raise for big `elk` layouts. |
-| `--style PATH` | Use this style file instead of the one the diagram imports (previews use it). |
+| `--style PATH` | Read `default-format` and friends from this style file instead of the one the diagram imports (previews use it). |
 | `--accept-chromium` | Consent to the one-time Chromium download for raster output. |
 | `--dry-run` | Print the d2 command instead of running it. |
 
@@ -55,8 +55,7 @@ render PNG without a browser, at which point this step disappears.
 
 Embed with a relative path next to the source so reviewers can diff the `.d2` file:
 `![Checkout flow](docs/diagrams/checkout-flow.png)`. Keep the `.d2` committed; the image is a
-build artefact that any teammate can regenerate with `d2 docs/diagrams/checkout-flow.d2 out.png`
-(fonts excepted, see style-config.md).
+build artefact that anyone can regenerate with `d2 docs/diagrams/checkout-flow.d2 out.png`.
 
 ## Handy d2 commands for the user
 

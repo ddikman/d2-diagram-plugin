@@ -1,0 +1,44 @@
+# d2 theme: chalkboard — Dark slate board with yellow ink, cyan connections and orange-red databases.
+# Vivid sketch style. Diagrams import this file via ...@_style; edit it freely, it is plain D2.
+vars: {
+  d2-config: {
+    theme-id: 0
+    sketch: true
+    layout-engine: dagre
+    pad: 40
+    theme-overrides: {
+      B1: "#f8c848"
+      B2: "#38c8c8"
+      B3: "#0888a8"
+      B4: "#34475a"
+      B5: "#3d5468"
+      B6: "#46607a"
+      AA2: "#f8c848"
+      AA4: "#f85838"
+      AA5: "#7a3a2c"
+      AB4: "#8cc63f"
+      AB5: "#4d6a2a"
+      N1: "#f8f4e8"
+      N2: "#f8c848"
+      N3: "#d8d0c0"
+      N4: "#4a617a"
+      N5: "#3f5872"
+      N6: "#55708a"
+      N7: "#34475a"
+    }
+    data: {default-format: png; animated-format: gif; animate-interval: 1200}
+  }
+}
+
+# Paper colour behind the whole diagram.
+style.fill: "#283848"
+
+# House style: made for slides and screens — large bold labels and heavy strokes.
+***.style.font-size: 20
+***.style.bold: true
+***.style.stroke-width: 3
+(*** -> ***)[*].style.stroke-width: 3
+(*** -> ***)[*].style.font-size: 18
+
+# d2 sizes a person from its label, which stretches the icon sideways for long names; pin the box.
+***: {&shape: person; width: 64; height: 88}

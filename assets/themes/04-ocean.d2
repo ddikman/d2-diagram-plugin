@@ -1,0 +1,44 @@
+# d2 theme: ocean — Monochrome blues like the blue pie chart, with yellow databases and a red accent.
+# Vivid sketch style. Diagrams import this file via ...@_style; edit it freely, it is plain D2.
+vars: {
+  d2-config: {
+    theme-id: 0
+    sketch: true
+    layout-engine: dagre
+    pad: 40
+    theme-overrides: {
+      B1: "#1b3a52"
+      B2: "#1b3a52"
+      B3: "#2a7fb8"
+      B4: "#b3d8ec"
+      B5: "#57b0db"
+      B6: "#8ccbe8"
+      AA2: "#f85838"
+      AA4: "#f8c848"
+      AA5: "#fdeeb8"
+      AB4: "#f85838"
+      AB5: "#fbd3c9"
+      N1: "#1b3a52"
+      N2: "#3a5a72"
+      N3: "#5c7b93"
+      N4: "#8ccbe8"
+      N5: "#b3d8ec"
+      N6: "#d8e3eb"
+      N7: "#f5fafd"
+    }
+    data: {default-format: png; animated-format: gif; animate-interval: 1200}
+  }
+}
+
+# Paper colour behind the whole diagram.
+style.fill: "#eef5fa"
+
+# House style: made for slides and screens — large bold labels and heavy strokes.
+***.style.font-size: 20
+***.style.bold: true
+***.style.stroke-width: 3
+(*** -> ***)[*].style.stroke-width: 3
+(*** -> ***)[*].style.font-size: 18
+
+# d2 sizes a person from its label, which stretches the icon sideways for long names; pin the box.
+***: {&shape: person; width: 64; height: 88}

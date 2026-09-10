@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# preflight.sh — environment probe for the d2 plugin skills.
+# preflight.sh — environment probe for the d2 skill.
 #
-# Prints a small fixed contract (one KEY: value per line) that the skills read before doing
+# Prints a small fixed contract (one KEY: value per line) that the skill reads before doing
 # anything: whether d2 exists, which style file applies (project first, personal second), where
-# diagrams live, whether auto-invocation was switched off for this workspace, and anything in
-# the shell environment that would silently override the in-file style.
+# diagrams live, and anything in the shell environment that would silently override the in-file
+# style.
 #
 # This script is run from a skill's dynamic-context line, where a non-zero exit aborts the whole
 # skill invocation. It therefore never fails: every probe is best-effort and the script always
@@ -71,24 +71,8 @@ if [ -d "$diagrams_dir" ]; then
 fi
 echo "EXISTING_DIAGRAMS: $count"
 
-# --- auto-invocation switch (skillOverrides for d2:diagram) -----------------------------------
-auto="on"
-auto_src=""
-for f in "${root:-$cwd}/.claude/settings.local.json" "${root:-$cwd}/.claude/settings.json" "$HOME/.claude/settings.json"; do
-  [ -f "$f" ] || continue
-  if command -v jq >/dev/null 2>&1; then
-    v="$(jq -r '.skillOverrides["d2:diagram"] // empty' "$f" 2>/dev/null)"
-  else
-    v="$(grep -Eo '"d2:diagram"[[:space:]]*:[[:space:]]*"[a-z-]+"' "$f" 2>/dev/null | head -1 | sed -E 's/.*:[[:space:]]*"([a-z-]+)"/\1/')"
-  fi
-  case "$v" in
-    off|user-invocable-only|name-only) auto="off"; auto_src="$f"; break;;
-  esac
-done
-if [ "$auto" = "off" ]; then echo "AUTO: off ($auto_src)"; else echo "AUTO: on"; fi
-
 # --- shell overrides that beat in-file config -------------------------------------------------
-overrides="$(env 2>/dev/null | grep -E '^D2_(THEME|DARK_THEME|SKETCH|LAYOUT|PAD|CENTER|ANIMATE_INTERVAL|FONT_[A-Z_]+)=' | tr '\n' ' ')"
+overrides="$(env 2>/dev/null | grep -E '^D2_(THEME|DARK_THEME|SKETCH|LAYOUT|PAD|CENTER|ANIMATE_INTERVAL)=' | tr '\n' ' ')"
 echo "ENV_OVERRIDE: ${overrides:-none}"
 
 # --- host hints -------------------------------------------------------------------------------

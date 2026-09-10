@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# render.sh — render a .d2 file the way the d2 plugin expects.
+# render.sh — render a .d2 file the way the d2 skill expects.
 #
 # Usage: render.sh FILE.d2 [--format png|svg|gif|animated-svg|animated|pdf|pptx] [--out PATH]
 #                  [--scale N] [--interval MS] [--target BOARD] [--all-boards] [--timeout SECONDS]
@@ -7,9 +7,9 @@
 #
 # Theme, layout, sketch mode and padding live in the .d2 files themselves (each diagram imports a
 # shared _style.d2), so plain `d2 file.d2` already reproduces them. This wrapper only adds what
-# cannot live in the file: the font (CLI flags only), the animation interval for multi-board
-# diagrams, and protection against stray D2_* environment variables, which would silently override
-# the in-file style. It also turns d2's interactive Chromium prompt into an explicit consent step.
+# cannot live in the file: the animation interval for multi-board diagrams, sensible output names,
+# and protection against stray D2_* environment variables, which would silently override the
+# in-file style. It also turns d2's interactive Chromium prompt into an explicit consent step.
 #
 # Prints "OUT: <path>" on success. Exit codes: 0 ok, 1 d2 failed, 2 usage or config error,
 # 3 d2 missing, 4 Chromium download needed (re-run with --accept-chromium after the user agrees).
@@ -55,7 +55,7 @@ if [ -z "$style" ]; then
   fi
 fi
 if [ -n "$style" ] && [ ! -f "$style" ]; then
-  echo "error: style file not found: $style (the diagram imports it; create it with /d2:style)" >&2
+  echo "error: style file not found: $style (the diagram imports it; create it with /d2 style)" >&2
   exit 2
 fi
 
@@ -73,7 +73,6 @@ data_get() {  # data_get KEY FILE... (later files override earlier ones)
   printf '%s' "$v"
 }
 
-font="$(data_get font "$style" "$file_abs")"
 [ -n "$format" ] || format="$(data_get default-format "$style" "$file_abs")"
 [ -n "$format" ] || format="png"
 animated_fmt="$(data_get animated-format "$style" "$file_abs")"; [ -n "$animated_fmt" ] || animated_fmt="gif"
@@ -86,47 +85,10 @@ case "$format" in
   *) echo "error: unknown format '$format' (use png, svg, gif, animated-svg, animated, pdf or pptx)" >&2; exit 2 ;;
 esac
 
-# --- fonts: bundled name or a directory holding *-Regular/Bold/Italic/SemiBold.ttf -----------
-font_dir=""; mono_too=0
-case "$font" in
-  ""|default|none|source-sans) ;;
-  inter) font_dir="$PLUGIN_ROOT/assets/fonts/inter" ;;
-  plex-mono|ibm-plex-mono) font_dir="$PLUGIN_ROOT/assets/fonts/ibm-plex-mono"; mono_too=1 ;;
-  lora) font_dir="$PLUGIN_ROOT/assets/fonts/lora" ;;
-  */*|~*)
-    font_dir="${font/#\~/$HOME}"
-    case "$font_dir" in /*) ;; *) font_dir="$(dirname "${style:-$file_abs}")/$font_dir" ;; esac
-    [ -d "$font_dir" ] || { echo "error: font directory not found: $font_dir" >&2; exit 2; } ;;
-  *) echo "error: unknown font '$font'. Use default, inter, plex-mono, lora, or a directory of .ttf files." >&2; exit 2 ;;
-esac
-pick_font() {  # pick_font STYLE -> first matching ttf in font_dir
-  ls "$font_dir"/*-"$1".ttf "$font_dir"/"$1".ttf 2>/dev/null | head -1
-}
-font_args=()
-if [ -n "$font_dir" ]; then
-  for st in Regular Bold Italic SemiBold; do
-    f="$(pick_font "$st")"
-    [ -n "$f" ] && [ -f "$f" ] || { echo "error: no $st .ttf in $font_dir (need Regular, Bold, Italic and SemiBold)" >&2; exit 2; }
-    case "$st" in
-      Regular) font_args+=(--font-regular "$f") ;;
-      Bold) font_args+=(--font-bold "$f") ;;
-      Italic) font_args+=(--font-italic "$f") ;;
-      SemiBold) font_args+=(--font-semibold "$f") ;;
-    esac
-  done
-  if [ "$mono_too" = 1 ]; then
-    font_args+=(--font-mono "$(pick_font Regular)" --font-mono-bold "$(pick_font Bold)" \
-                --font-mono-italic "$(pick_font Italic)" --font-mono-semibold "$(pick_font SemiBold)")
-  fi
-fi
-
 # --- shell variables that would override the in-file style ---------------------------------
 for v in D2_THEME D2_DARK_THEME D2_SKETCH D2_LAYOUT D2_PAD D2_CENTER D2_ANIMATE_INTERVAL; do
   if [ -n "${!v:-}" ]; then echo "NOTE: ignoring $v=${!v} from your shell (the style file wins)"; unset "$v"; fi
 done
-if [ -n "$font_dir" ]; then
-  for v in $(env | grep -o '^D2_FONT_[A-Z_]*'); do echo "NOTE: ignoring $v from your shell (style font: $font)"; unset "$v"; done
-fi
 
 # --- boards: animation needs steps/scenarios/layers; static output of those is one board -----
 multiboard=0
@@ -157,9 +119,8 @@ fi
 [ -n "$scale" ] && args+=(--scale "$scale")
 [ -n "$timeout_s" ] && args+=(--timeout "$timeout_s")
 
-cmd=(d2 ${font_args[@]+"${font_args[@]}"} ${args[@]+"${args[@]}"} "$file_abs" "$out")
+cmd=(d2 ${args[@]+"${args[@]}"} "$file_abs" "$out")
 if [ "$dry" = 1 ]; then
-  [ -n "$font_dir" ] && echo "FONT: $font ($font_dir)"
   printf 'CMD:'; printf ' %q' "${cmd[@]}"; printf '\n'
   echo "OUT: $out"
   exit 0
@@ -180,15 +141,12 @@ if [ "$rc" -ne 0 ] && grep -Eq 'install Chromium|failed to read user input' "$lo
   fi
 fi
 if [ "$rc" -ne 0 ]; then
-  grep -v '^info: font' "$logf" >&2
+  cat "$logf" >&2
   rm -f "$logf"
   echo "error: d2 exited with status $rc" >&2
   exit 1
 fi
-if [ -n "$font_dir" ]; then
-  echo "FONT: $font ($(grep -c '^info: font .* loaded' "$logf" | tr -d ' ') font files loaded from $font_dir)"
-fi
-grep -Ei 'warn' "$logf" | grep -v '^info: font' | sed 's/^/d2: /' >&2
+grep -Ei 'warn' "$logf" | sed 's/^/d2: /' >&2
 rm -f "$logf"
 if [ -d "$out" ]; then
   echo "OUT_DIR: $out"

@@ -1,0 +1,44 @@
+# d2 theme: poster — The whole infographic: slate ink, teal and cyan shapes, yellow groups, orange-red databases.
+# Vivid sketch style. Diagrams import this file via ...@_style; edit it freely, it is plain D2.
+vars: {
+  d2-config: {
+    theme-id: 0
+    sketch: true
+    layout-engine: dagre
+    pad: 40
+    theme-overrides: {
+      B1: "#2f3e4e"
+      B2: "#2f3e4e"
+      B3: "#0888a8"
+      B4: "#f8c848"
+      B5: "#38b4c8"
+      B6: "#6ccbd8"
+      AA2: "#f85838"
+      AA4: "#f85838"
+      AA5: "#fbd3c9"
+      AB4: "#8cc63f"
+      AB5: "#dff0c2"
+      N1: "#2f3e4e"
+      N2: "#4a5a6a"
+      N3: "#66778a"
+      N4: "#8fd3dc"
+      N5: "#a6dde3"
+      N6: "#d9dfe5"
+      N7: "#fbfaf6"
+    }
+    data: {default-format: png; animated-format: gif; animate-interval: 1200}
+  }
+}
+
+# Paper colour behind the whole diagram.
+style.fill: "#f3f1ea"
+
+# House style: made for slides and screens — large bold labels and heavy strokes.
+***.style.font-size: 20
+***.style.bold: true
+***.style.stroke-width: 3
+(*** -> ***)[*].style.stroke-width: 3
+(*** -> ***)[*].style.font-size: 18
+
+# d2 sizes a person from its label, which stretches the icon sideways for long names; pin the box.
+***: {&shape: person; width: 64; height: 88}

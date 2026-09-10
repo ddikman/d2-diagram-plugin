@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# preview.sh — render the sample diagram in every numbered preset and open a contact sheet.
+# preview.sh — render the sample diagram in every colour theme and open a contact sheet.
 #
 # Usage: preview.sh [--out DIR] [--no-open] [--sample FILE]
 #
@@ -8,9 +8,8 @@
 # and the numbered list of styles so the user can pick by number even without a display.
 # SVG only, so this never needs Chromium.
 #
-# --sample swaps in a different diagram: assets/examples/*.d2 ship with the plugin, or point it at
-# one of your own to see the styles on the diagram you actually care about. The file must not
-# import a style of its own (no ...@_style line) — the preset supplies that.
+# --sample swaps in one of your own diagrams to judge the themes on something you actually draw.
+# The file must not import a style of its own (no ...@_style line) — the theme supplies that.
 set -e
 PLUGIN_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 out="${TMPDIR:-/tmp}/d2-diagram-preview"; out="${out%/}"
@@ -26,13 +25,7 @@ while [ $# -gt 0 ]; do
   esac
 done
 command -v d2 >/dev/null 2>&1 || { echo "error: d2 is not installed (brew install d2)" >&2; exit 3; }
-# A bare name resolves against the bundled examples, so --sample sequence works.
-if [ ! -f "$sample" ]; then
-  for cand in "$PLUGIN_ROOT/assets/examples/$sample.d2" "$PLUGIN_ROOT/assets/examples/$sample"; do
-    [ -f "$cand" ] && { sample="$cand"; break; }
-  done
-fi
-[ -f "$sample" ] || { echo "error: no such sample: $sample (try: $(ls "$PLUGIN_ROOT"/assets/examples/*.d2 2>/dev/null | sed 's|.*/||; s|\.d2$||' | tr '\n' ' '))" >&2; exit 2; }
+[ -f "$sample" ] || { echo "error: no such sample: $sample" >&2; exit 2; }
 grep -q '^\.\.\.@' "$sample" && { echo "error: $sample imports its own style (...@); the preset supplies the style" >&2; exit 2; }
 sample="$(cd "$(dirname "$sample")" && pwd)/$(basename "$sample")"
 mkdir -p "$out"
@@ -42,12 +35,12 @@ html_escape() { sed -e 's/&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g'; }
 cards=""
 listing=""
 n=0
-for preset in "$PLUGIN_ROOT"/assets/presets/0[1-9]-*.d2; do
+for preset in "$PLUGIN_ROOT"/assets/themes/0[1-9]-*.d2; do
   [ -f "$preset" ] || continue
   n=$((n + 1))
   fname="$(basename "$preset" .d2)"
   name="${fname#*-}"
-  caption="$(head -1 "$preset" | sed -E 's/^# d2-diagram preset: [^ ]+ *(—|-)? *//')"
+  caption="$(head -1 "$preset" | sed -E 's/^# d2 theme: [^ ]+ *(—|-)? *//')"
   theme="$(grep -Eo 'theme-id:[[:space:]]*[0-9]+' "$preset" | head -1 | grep -Eo '[0-9]+')"
   layout="$(grep -Eo 'layout-engine:[[:space:]]*[a-z]+' "$preset" | head -1 | sed -E 's/.*:[[:space:]]*//')"
   # Scope the font lookup to the data: line; a house-style `style.font: mono` must not match.
@@ -56,11 +49,10 @@ for preset in "$PLUGIN_ROOT"/assets/presets/0[1-9]-*.d2; do
   chips="<span>theme $theme</span><span>${layout:-dagre}</span><span>${font:-default}</span>"
   [ "$sketchy" = true ] && chips="$chips<span>sketch</span>"
   star=""; classes=""
-  case "$caption" in *Recommended*) star=" ★"; classes="recommended" ;; esac
   if [ "${theme:-0}" -ge 200 ] && [ "${theme:-0}" -lt 300 ]; then classes="$classes dark"; fi
   cat "$preset" "$sample" > "$out/$fname.d2"
   if ! bash "$PLUGIN_ROOT/scripts/render.sh" "$out/$fname.d2" --format svg --style "$preset" --out "$out/$fname.svg" >/dev/null; then
-    echo "error: failed to render preset $name" >&2
+    echo "error: failed to render theme $name" >&2
     exit 1
   fi
   esc_caption="$(printf '%s' "$caption" | html_escape)"
@@ -75,11 +67,10 @@ for preset in "$PLUGIN_ROOT"/assets/presets/0[1-9]-*.d2; do
 $n. $name$star — $caption"
 done
 
-extras="$(ls "$PLUGIN_ROOT"/assets/presets/*.d2 | grep -v '/0[1-9]-' | sed 's|.*/||; s|\.d2$||' | tr '\n' ',' | sed 's/,$//; s/,/, /g')"
 template="$(cat "$PLUGIN_ROOT/assets/contact-sheet.html")"
-html="${template//\{\{TITLE\}\}/D2 diagram styles}"
+html="${template//\{\{TITLE\}\}/D2 colour themes}"
 html="${html//\{\{CARDS\}\}/$cards}"
-html="${html//\{\{FOOTER\}\}/More styles by name: $extras. Change your choice any time with /d2:style.}"
+html="${html//\{\{FOOTER\}\}/Switch any time with /d2 style NAME. Themes are plain D2 files under assets/themes: edit the colours to taste.}"
 printf '%s\n' "$html" > "$out/index.html"
 
 opened=0
@@ -92,5 +83,4 @@ if [ "$open_it" = 1 ]; then
 fi
 echo "SHEET: $out/index.html"
 echo "STYLES:$listing"
-echo "EXTRAS: $extras"
 exit 0
