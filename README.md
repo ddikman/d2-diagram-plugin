@@ -6,8 +6,30 @@ ink, teal and cyan shapes, yellow groups, soft orange databases, on warm grey pa
 
 ## Install
 
+The skill follows Anthropic's open [Agent Skills](https://agentskills.io) format, so it installs
+with the `skills` CLI, the standard installer for that format, into Claude Code, Cursor, Codex,
+OpenCode and some seventy other agents. You need [d2](https://d2lang.com) on your machine first.
+
 ```bash
 brew install d2
+
+# Claude Code, user-level (available in every project)
+npx skills add ddikman/d2-diagram-plugin -a claude-code -g
+
+# Cursor
+npx skills add ddikman/d2-diagram-plugin -a cursor -g
+
+# every agent the CLI knows about, or any other by name (codex, opencode, ...)
+npx skills add ddikman/d2-diagram-plugin -a '*' -g
+```
+
+Drop `-g` to install into the current project only (it lands in `.agents/skills/d2` with a
+symlink for each agent). `npx skills list` shows what is installed, `npx skills update` pulls
+the latest version, `npx skills remove d2` takes it out again.
+
+Without the CLI, a clone and a symlink do the same for Claude Code:
+
+```bash
 git clone git@github.com:ddikman/d2-diagram-plugin.git ~/code/d2-diagram-plugin
 ln -s ~/code/d2-diagram-plugin ~/.claude/skills/d2
 ```
