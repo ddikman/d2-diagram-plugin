@@ -1,0 +1,23 @@
+# OAuth device flow — a sequence diagram, which ignores the layout engine entirely.
+# Probes: sequence_diagram, self-message, dashed message, long labels.
+# Sequence diagrams are tall by nature; expect roughly 0.7:1.
+shape: sequence_diagram
+
+title: Device authorisation flow {
+  near: top-center
+  shape: text
+  style: {font-size: 24; bold: true}
+}
+
+cli: CLI
+auth: Auth server
+browser: Browser
+
+cli -> auth: POST /device/code
+auth -> cli: user_code + verify_url
+cli -> cli: poll every 5s
+browser -> auth: user enters code
+auth -> browser: consent screen
+browser -> auth: approve
+cli -> auth: POST /token
+auth -> cli: access_token {style.stroke-dash: 3}

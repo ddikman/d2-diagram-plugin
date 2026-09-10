@@ -9,3 +9,14 @@ vars: {
     data: {font: inter; default-format: png; animated-format: gif; animate-interval: 1200}
   }
 }
+
+# House style: technical drawing — square corners, dashed boundaries, no shadows.
+***.style.border-radius: 2
+***.style.font-size: 17
+***: {&leaf: false; style.bold: true; style.stroke-dash: 3}
+(*** -> ***)[*].style.stroke-width: 2
+(*** -> ***)[*].style.font-size: 15
+
+# d2 sizes a person from its label, so a long name stretches the icon sideways.
+# Pinning the box keeps people looking like people; the label still sits below it.
+***: {&shape: person; width: 64; height: 88}

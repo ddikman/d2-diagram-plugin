@@ -9,3 +9,14 @@ vars: {
     data: {font: plex-mono; default-format: png; animated-format: gif; animate-interval: 1200}
   }
 }
+
+# House style: restrained — square corners, plain strokes, no shadows or textures.
+***.style.border-radius: 0
+***.style.font-size: 17
+***: {&leaf: false; style.bold: true}
+(*** -> ***)[*].style.stroke-width: 2
+(*** -> ***)[*].style.font-size: 15
+
+# d2 sizes a person from its label, so a long name stretches the icon sideways.
+# Pinning the box keeps people looking like people; the label still sits below it.
+***: {&shape: person; width: 64; height: 88}

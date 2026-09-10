@@ -84,7 +84,10 @@ Read the block above before anything else:
    diagrams or `layers`. A diagram that needs a different layout engine or padding gets a second
    `vars: {d2-config: {layout-engine: elk}}` block after the import (later blocks merge). Never
    pass `--theme`, `--sketch`, `--layout` or `--pad` on the command line: flags override the file
-   and the result would not match what teammates see. Syntax help: `references/d2-cheatsheet.md`.
+   and the result would not match what teammates see. The style file also sets house-wide `***`
+   rules (rounding, shadows, stroke weight, label size) — let them apply rather than restyling
+   every node by hand; override just what you need (`api.style.shadow: false`) or restate a `***`
+   rule after the import to change it everywhere. Syntax help: `references/d2-cheatsheet.md`.
 5. **Format and validate.** `d2 fmt <file> && d2 validate <file>`. Errors come as
    `file:line:col: message`; fix them before rendering.
 6. **Render.** `bash "${CLAUDE_PLUGIN_ROOT}/scripts/render.sh" <file> [--format png|svg|gif|animated-svg] [--scale 2]`.
@@ -125,6 +128,10 @@ with the contents of `_style.d2`.
 - Icons (`icon: https://icons.terrastruct.com/...`) are fetched at render time and need network;
   use them only when the user asks for icons. Local image files work offline.
 - `tooltip` and `link` survive only in SVG.
+- Never put `style.3d` or `style.double-border` behind a glob (`***`, `**`, `*`). d2 allows them
+  only on squares, rectangles, circles, ovals and hexagons, so the first cylinder, person, queue,
+  table or markdown block breaks the whole render — and `d2 validate` still reports the file as
+  valid, so only a render catches it.
 - Large diagrams: `elk` is slower than `dagre`; pass `--timeout 300` to `render.sh` for big graphs
   and consider splitting into `layers`.
 - Sequence diagrams ignore the layout engine; keep them to about a dozen messages.

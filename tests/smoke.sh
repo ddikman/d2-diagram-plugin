@@ -31,6 +31,56 @@ for p in "$ROOT"/assets/presets/*.d2; do
   name="$(basename "$p" .d2)"
   cat "$p" "$ROOT/assets/sample.d2" > "$tmp/$name.d2"
   if d2 validate "$tmp/$name.d2" >/dev/null 2>"$tmp/$name.err"; then ok "preset $name validates"; else fail "preset $name: $(head -1 "$tmp/$name.err")"; fi
+  grep -q '^\*\*\*' "$p" && ok "preset $name has a house style block" || fail "preset $name has no *** rules"
+done
+
+# 2b. every preset RENDERS against every shape. `d2 validate` is not enough: style keys such as
+# 3d and double-border validate cleanly and then fail to compile on cylinders, people, queues,
+# tables and markdown blocks. Only a real render catches that.
+for p in "$ROOT"/assets/presets/*.d2; do
+  name="$(basename "$p" .d2)"
+  cat "$p" "$ROOT/tests/fixtures/shapes.d2" > "$tmp/$name.shapes.d2"
+  if err="$(d2 --target '' "$tmp/$name.shapes.d2" - 2>&1 >/dev/null | grep -E '^err:' | head -1)"; [ -z "$err" ]; then
+    ok "preset $name renders every shape"
+  else
+    fail "preset $name on shapes.d2: $err"
+  fi
+done
+
+# 2b2. the bundled alternative examples compile under every preset too (they are what
+# `preview.sh --sample <name>` renders, so a broken one breaks the style picker).
+for ex in "$ROOT"/assets/examples/*.d2; do
+  exname="$(basename "$ex" .d2)"
+  grep -q '^\.\.\.@' "$ex" && fail "example $exname must not import its own style"
+  bad=0
+  for p in "$ROOT"/assets/presets/*.d2; do
+    cat "$p" "$ex" > "$tmp/ex-$exname.d2"
+    err="$(d2 --target '' "$tmp/ex-$exname.d2" - 2>&1 >/dev/null | grep -E '^err:' | head -1)"
+    [ -n "$err" ] && { fail "example $exname on preset $(basename "$p" .d2): $err"; bad=1; break; }
+  done
+  [ "$bad" = 0 ] && ok "example $exname renders under every preset"
+done
+
+# 2b3. --sample resolves a bare example name and actually swaps the diagram in
+if bash "$ROOT/scripts/preview.sh" --sample sequence --out "$tmp/exsheet" --no-open >/dev/null 2>&1; then
+  grep -q 'Device authorisation flow' "$tmp/exsheet/01-clean.svg" \
+    && ok "preview.sh --sample <name> renders the bundled example" \
+    || fail "--sample sequence did not swap the diagram"
+else
+  fail "preview.sh --sample sequence failed"
+fi
+bash "$ROOT/scripts/preview.sh" --sample nope --out "$tmp/exbad" --no-open >/dev/null 2>&1 \
+  && fail "--sample accepted a missing file" || ok "--sample rejects an unknown sample"
+
+# 2c. aspect ratio: the contact sheet is unreadable when a preset renders as a letterbox.
+for f in "$tmp"/preview/0[1-9]-*.svg; do
+  [ -f "$f" ] || continue
+  vb="$(grep -o 'viewBox="0 0 [0-9]* [0-9]*"' "$f" | head -1 | awk '{print $3"x"$4}' | tr -d '"')"
+  if awk -v s="$vb" 'BEGIN{split(s,a,"x"); exit !(a[1]/a[2] <= 2.2)}'; then
+    ok "$(basename "$f") aspect ratio $(echo "$vb" | awk -Fx '{printf "%.2f", $1/$2}'):1"
+  else
+    fail "$(basename "$f") is $(echo "$vb" | awk -Fx '{printf "%.2f", $1/$2}'):1, wider than 2.2:1"
+  fi
 done
 
 # 3. fonts: the flags are built and d2 reports loading the bundled files
@@ -57,6 +107,15 @@ cp "$ROOT/assets/presets/03-blueprint.d2" "$proj/docs/diagrams/_style.d2"
 log="$(cd "$proj" && bash "$render" docs/diagrams/flow.d2 --format svg 2>&1)"
 [ -f "$proj/docs/diagrams/flow.svg" ] && ok "render.sh resolves the imported style and writes flow.svg" || fail "import render: $log"
 printf '%s' "$log" | grep -q 'FONT: inter' && ok "font taken from the imported style" || fail "font from import: $log"
+# House-style globs are triple globs precisely so they survive the import. glob.d2 styles nothing
+# itself, so a dashed container border can only have come through ...@_style (blueprint dashes them).
+{ echo '...@_style'; echo; echo 'grp: Group {inner}'; } > "$proj/docs/diagrams/glob.d2"
+( cd "$proj" && bash "$render" docs/diagrams/glob.d2 --format svg ) >/dev/null 2>&1
+if grep -q 'stroke-dasharray' "$proj/docs/diagrams/glob.svg" 2>/dev/null; then
+  ok "*** house style survives ...@_style"
+else
+  fail "*** globs lost across the import"
+fi
 pre="$(cd "$proj/other" && bash "$ROOT/scripts/preflight.sh")"
 printf '%s' "$pre" | grep -q "PROJECT_STYLE: $proj/docs/diagrams/_style.d2" && ok "preflight finds the project style from a subdirectory" || fail "preflight project style: $pre"
 printf '%s' "$pre" | grep -q "DIAGRAMS_DIR: $proj/docs/diagrams" && ok "preflight diagrams dir" || fail "preflight diagrams dir: $pre"
@@ -91,7 +150,14 @@ if [ "$want_png" = 1 ]; then
   if [ -f "$proj/docs/diagrams/flow.png" ] && [ "$(head -c 8 "$proj/docs/diagrams/flow.png" | xxd -p)" = "89504e470d0a1a0a" ]; then ok "png export"; else fail "png export: $log"; fi
 fi
 
-# 7. plugin manifest
+# 7. checked-in README gallery is current (advisory: a different d2 build legitimately differs)
+if bash "$ROOT/scripts/gallery.sh" --check >/dev/null 2>&1; then
+  ok "docs/presets is current"
+else
+  echo "note  docs/presets differs from a fresh render (run scripts/gallery.sh)"
+fi
+
+# 8. plugin manifest
 if command -v claude >/dev/null 2>&1; then
   ( cd "$ROOT" && claude plugin validate ./ --strict >/dev/null 2>&1 ) && ok "claude plugin validate --strict" || fail "claude plugin validate"
 fi

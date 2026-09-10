@@ -9,3 +9,14 @@ vars: {
     data: {font: default; default-format: png; animated-format: gif; animate-interval: 1200}
   }
 }
+
+# House style: CRT terminal — hard corners, phosphor dot fill, dotted enclosure walls.
+***.style.border-radius: 0
+***.style.font-size: 16
+***: {&leaf: true; style.fill-pattern: dots}
+***: {&leaf: false; style.stroke-dash: 2; style.bold: true}
+(*** -> ***)[*].style.stroke-width: 2
+
+# d2 sizes a person from its label, so a long name stretches the icon sideways.
+# Pinning the box keeps people looking like people; the label still sits below it.
+***: {&shape: person; width: 64; height: 88}

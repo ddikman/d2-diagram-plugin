@@ -1,0 +1,69 @@
+# Every shape a user might draw, plus multi-board constructs.
+# Rendered against every preset by tests/smoke.sh, so a style key that is illegal for any one
+# shape can never ship. `d2 validate` does NOT catch those — only a real render does.
+
+rect: Rect
+sq: Sq {shape: square}
+page: Page {shape: page}
+par: Par {shape: parallelogram}
+doc: Doc {shape: document}
+cyl: Cyl {shape: cylinder}
+q: Q {shape: queue}
+pkg: Pkg {shape: package}
+step: Step {shape: step}
+cal: Cal {shape: callout}
+sd: Sd {shape: stored_data}
+per: Per {shape: person}
+dia: Dia {shape: diamond}
+ov: Oval {shape: oval}
+ci: Circ {shape: circle}
+hex: Hex {shape: hexagon}
+cl: Cloud {shape: cloud}
+c4p: C4P {shape: c4-person}
+txt2: Text {shape: text}
+
+code: Code {
+  shape: code
+  x = 1
+}
+
+md: |md
+  ## markdown
+|
+
+cls: Cls {
+  shape: class
+  field: string
+  method(a int): bool
+}
+
+tbl: Tbl {
+  shape: sql_table
+  id: int {constraint: primary_key}
+  ref: int {constraint: foreign_key}
+}
+
+cont: Cont {
+  a
+  b
+  a -> b: inner
+}
+
+rect -> sq: label
+cyl -> q
+
+seq: {
+  shape: sequence_diagram
+  a
+  b
+  a -> b: msg
+  a.t1 -> b.t2: nested
+}
+
+layers: {
+  two: {x -> y}
+}
+
+steps: {
+  one: {p -> q}
+}

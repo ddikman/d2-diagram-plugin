@@ -9,3 +9,14 @@ vars: {
     data: {font: lora; default-format: png; animated-format: gif; animate-interval: 1200}
   }
 }
+
+# House style: printed-paper feel — soft corners and a paper grain on the leaf shapes.
+***.style.border-radius: 10
+***.style.font-size: 17
+***: {&leaf: true; style.fill-pattern: grain}
+***: {&leaf: false; style.bold: true}
+(*** -> ***)[*].style.stroke-width: 2
+
+# d2 sizes a person from its label, so a long name stretches the icon sideways.
+# Pinning the box keeps people looking like people; the label still sits below it.
+***: {&shape: person; width: 64; height: 88}
