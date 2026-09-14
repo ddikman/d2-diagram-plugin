@@ -8,8 +8,9 @@ description: >-
   process, pipeline or architecture, or mention D2 or a .d2 file.
 argument-hint: "[what to draw | path/to/file.d2] [as svg|animated]"
 compatibility: >-
-  Needs the d2 CLI (installed on first use if missing: Homebrew on macOS, otherwise the official
-  install script into ~/.local). PNG and GIF output need d2's one-time Chromium download.
+  Needs the d2 CLI; when it is missing the skill asks before installing it (Homebrew on macOS,
+  otherwise the official install script into ~/.local). PNG and GIF output need d2's one-time
+  Chromium download, which is also asked about first.
 allowed-tools:
   - Bash(d2 *)
   - Read
@@ -30,12 +31,14 @@ therefore reproduces the look anywhere.
 d2: !`d2 --version 2>/dev/null || echo "missing"`
 style: !`ls docs/diagrams/_style.d2 diagrams/_style.d2 2>/dev/null || echo "none yet"`
 
-- If d2 is missing, install it before anything else and say so in one line. With Homebrew
-  (`command -v brew`): `brew install d2`. Otherwise the official script into a user-writable prefix,
-  no sudo: `curl -fsSL https://d2lang.com/install.sh | sh -s -- --method standalone --prefix ~/.local`,
-  then use `~/.local/bin/d2` for this session and tell me to add `~/.local/bin` to `PATH` if it is
-  not there. On Windows: `scoop install main/d2` or `choco install d2`. Confirm with `d2 --version`
-  and stop only if that still fails.
+- If d2 is missing, do not install anything yet. Ask me first, in prose, naming the exact command
+  you would run: `brew install d2` when Homebrew is available (`command -v brew`), otherwise the
+  official script into a user-writable prefix with no sudo,
+  `curl -fsSL https://d2lang.com/install.sh | sh -s -- --method standalone --prefix ~/.local`
+  (on Windows `scoop install main/d2` or `choco install d2`). Then stop and wait. Install only
+  after I say yes; a question, silence, or anything less than a clear yes means no, in which case
+  stop and leave the command for me to run myself. After installing, confirm with `d2 --version`
+  (for the script, use `~/.local/bin/d2` this session and tell me to add `~/.local/bin` to `PATH`).
 - Diagrams live in `docs/diagrams/` when the repo has a `docs/` folder, else in `diagrams/`.
   If that folder has no `_style.d2`, copy mine in and mention it in one line:
   `mkdir -p docs/diagrams && cp "${CLAUDE_SKILL_DIR}/style.d2" docs/diagrams/_style.d2`

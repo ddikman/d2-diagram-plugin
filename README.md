@@ -26,9 +26,10 @@ symlink for each agent). `npx skills list` shows what is installed, `npx skills 
 the latest version, `npx skills remove d2` takes it out again.
 
 The format has no install hooks, so nothing runs at install time. Instead the skill checks for
-[d2](https://d2lang.com) the first time it is used and installs it if missing: Homebrew on macOS,
-otherwise the official install script into `~/.local` (no sudo). To do that up front:
-`brew install d2` or `curl -fsSL https://d2lang.com/install.sh | sh -s --`.
+[d2](https://d2lang.com) the first time it is used and, if it is missing, asks before installing
+it: Homebrew on macOS, otherwise the official install script into `~/.local` (no sudo). Nothing
+is installed without a yes. To do it up front: `brew install d2` or
+`curl -fsSL https://d2lang.com/install.sh | sh -s --`.
 
 Without the CLI, a clone and a symlink do the same for Claude Code:
 
