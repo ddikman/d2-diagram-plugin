@@ -5,6 +5,19 @@ file next to a rendered PNG (or SVG; ask for animated and the lines flow) in my 
 sketch mode, slate ink, teal and cyan shapes, yellow groups, soft orange databases, on warm grey
 paper.
 
+## Example
+
+```text
+/d2 animate the process diagram of how this skill generates an animated svg
+```
+
+That prompt produced [`diagrams/animated-svg-process.d2`](diagrams/animated-svg-process.d2) and the
+SVG below, whose lines flow.
+
+<p align="center">
+  <img src="diagrams/animated-svg-process.svg" alt="How /d2 turns a request into an animated SVG" width="540">
+</p>
+
 ## Install
 
 The skill follows Anthropic's open [Agent Skills](https://agentskills.io) format, so it installs
@@ -41,11 +54,12 @@ ln -s ~/code/d2-diagram-plugin ~/.claude/skills/d2
 
 ## How it works
 
-Diagrams land in `docs/diagrams/<name>.d2` beside their image. Each one starts with `...@_style`,
-importing a copy of `style.d2` that sits next to it, so plain `d2 docs/diagrams/x.d2 x.png` gives
-the same picture with no flags. The style is ordinary D2: a `vars` block with the colours, a paper
-colour and a few `***` house rules. Edit `style.d2` to change the master, then copy it over a repo's
-`_style.d2` and re-render. The colour keys are explained at the top of the file.
+Diagrams land in `docs/diagrams/<name>.d2` beside their image (`diagrams/` in a repo without
+`docs/`, like this one). Each one starts with `...@_style`, importing a copy of `style.d2` that
+sits next to it, so plain `d2 docs/diagrams/x.d2 x.png` gives the same picture with no flags. The
+style is ordinary D2: a `vars` block with the colours, a paper colour and a few `***` house rules.
+Edit `style.d2` to change the master, then copy it over a repo's `_style.d2` and re-render. The
+colour keys are explained at the top of the file.
 
 `references/` holds the two notes the skill reads while drawing: which diagram fits which question,
 and the D2 syntax that is easy to get wrong.
