@@ -1,0 +1,37 @@
+...@_style
+
+direction: down
+
+ask: "/d2 animate ..." {shape: oval}
+setup: "Check d2 · copy _style.d2"
+write: Write x.d2 {
+  recipe: |d2
+    ...@_style
+    direction: down
+    a -> b: "1 · step"
+    (** -> **)[*].style.animated: true
+  |
+}
+check: Valid? {shape: diamond}
+svg: "x.svg · animation" {shape: document}
+png: "x.png · still" {shape: document}
+look: Reads well? {shape: diamond}
+report: Report + embed line {shape: oval}
+
+# The main path, from request to animated SVG.
+ask -> setup: "1 · set up" {style.stroke: "#c8401f"}
+setup -> write: "2 · pick a type" {style.stroke: "#c8401f"}
+write -> check: "3 · fmt + validate" {style.stroke: "#c8401f"}
+check -> svg: "4 · render" {style.stroke: "#c8401f"}
+
+# The still is only there to be looked at.
+check -> png: "4 · render"
+png -> look: "5 · read the PNG"
+look -> report: "6 · report"
+
+# "<-" keeps Write above the checks that send it back.
+write <- check: error
+write <- look: fix
+
+(** -> **)[*].style.animated: true
+(** <- **)[*].style.animated: true
