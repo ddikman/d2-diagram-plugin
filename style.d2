@@ -43,8 +43,15 @@ style.fill: "#f3f1ea"
 ***.style.font-size: 20
 ***.style.bold: true
 ***.style.stroke-width: 3
+# An edge glob only matches its own arrow type, so each one needs its own pair of rules.
 (*** -> ***)[*].style.stroke-width: 3
 (*** -> ***)[*].style.font-size: 18
+(*** <- ***)[*].style.stroke-width: 3
+(*** <- ***)[*].style.font-size: 18
+(*** <-> ***)[*].style.stroke-width: 3
+(*** <-> ***)[*].style.font-size: 18
+(*** -- ***)[*].style.stroke-width: 3
+(*** -- ***)[*].style.font-size: 18
 
 # d2 sizes a person from its label, which stretches the icon sideways for long names; pin the box.
 ***: {&shape: person; width: 64; height: 88}

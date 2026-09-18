@@ -8,7 +8,7 @@ The parts of D2 that are easy to get wrong, plus the constructs this plugin reli
 ```d2
 ...@_style          # line 1: spread-import the shared style (theme, layout, sketch, pad, font)
 
-direction: right    # up | down | left | right; also allowed inside a container
+direction: right    # up | down | left | right; root only (see Containers)
 
 # optional per-diagram override; later vars blocks merge with the imported one
 vars: {
@@ -49,12 +49,17 @@ a -> b: label             # label
 a -> b -> c: same label   # chain
 a -> b: {                 # styled edge
   style.stroke-dash: 3
-  style.animated: true    # flowing dashes, SVG only
+  style.animated: true    # dashes flow towards the arrowhead; SVG only, a PNG shows them frozen
   target-arrowhead: {shape: diamond; style.filled: false}
   source-arrowhead.shape: cf-many
 }
 (a -> b)[0].style.stroke: red   # refer to an existing edge by index
 ```
+
+Layout engines rank shapes from source to target, whatever the arrowhead says. To keep `backend`
+above `phone` when the request points up, write `backend.api <- phone.app: request`: the arrowhead
+(and the animation) still points at the backend. Refer to it with the same spelling,
+`(backend.api <- phone.app)[0]`.
 
 Arrowheads: `triangle` (default), `arrow`, `diamond`, `circle`, `box`, `cf-one`, `cf-many`,
 `cf-one-required`, `cf-many-required`, `cross`, `none`.
@@ -74,7 +79,8 @@ platform.db: Postgres {shape: cylinder}   # add from outside with dotted paths
 platform.style.fill: "#f5f5f5"
 ```
 
-Containers inherit `direction` from the root unless set inside them.
+`direction` inside a container is honoured only by TALA. dagre and elk ignore it without a
+warning, so every container follows the root direction.
 
 ## Styles
 
@@ -97,8 +103,10 @@ cache: Redis {class: [db; external]}   # several classes
 ```
 
 Globs apply to many things at once: `*.style.fill: "#fff"` (direct children),
-`**.style.font: mono` (all descendants), `(* -> *)[*].style.animated: true` (all edges at this
-level), `*.shape: circle`.
+`**.style.font: mono` (all descendants), `(** -> **)[*].style.animated: true` (every `->` edge,
+nested ones included; `(* -> *)` only sees edges between root shapes), `*.shape: circle`. An edge
+glob matches one arrow type: `(** -> **)[*]` skips `<-`, `<->` and `--` edges, so add a line for
+each arrow type in use.
 
 ## Variables and substitution
 
@@ -232,11 +240,16 @@ steps: {                  # each step inherits the previous one
 }
 ```
 
-Render one board with `--target layers.detail` / `--target scenarios.failure` / `--target steps.2`;
-`--target ''` is the root only. Multi-board files animate with `--animate-interval` (gif or
-animated svg); rendered statically without a target they produce a directory of boards, so pass
-`--target ''` for a static picture of the root board. A shape with `link: layers.detail` drills
-down in SVG.
+Render one board with `--target layers.detail` / `--target scenarios.failure` / `--target steps.2`
+(under a second, the way to check a step); `--target ''` is the root only. Multi-board files
+animate with `--animate-interval` into one SVG; rendered statically without a target they produce
+a directory of boards, so pass `--target ''` for a static picture of the root board. A shape with
+`link: layers.detail` drills down in SVG.
+
+Each board is laid out on its own: a shape or edge that first appears in a later step moves
+everything else. The style file's `***` rules also re-apply on every board, so a `font-size`,
+`bold` or `stroke-width` set on the root board falls back to the house value in the steps (fill,
+stroke and opacity survive). Set those inside the step, or use a markdown heading for big text.
 
 ## Imports
 
@@ -247,8 +260,9 @@ x: @models           # regular import: the file becomes the value of x
 y: @models.users     # partial import
 ```
 
-Only `.d2` files can be imported. A leading dot in the path is dropped by d2 (`...@.hidden/x`
-resolves to `hidden/x.d2`), so never place a shared file in a dot-directory.
+Only `.d2` files can be imported. A leading dot in the path written after `@` is dropped by d2
+(`...@.hidden/x` resolves to `hidden/x.d2`), so never import from a dot-directory. Where the
+diagram itself lives does not matter: `.context/x.d2` importing `_style` beside it works.
 
 ## Comments
 
@@ -272,3 +286,13 @@ block comment
   edge must use the full path from where it is written.
 - Label with a colon (`POST: /x`) or a hash: quote the label.
 - `direction` inside `steps`/`layers` boards must be set per board if it differs from the root.
+
+## Problems only the render shows
+
+`d2 validate` passes all of these; look at the picture.
+
+- A `|md` line wraps and its second line is cut off: the text holds a glyph the sketch font lacks
+  (`…`, arrows, emoji), which renders wider than d2 measured. Write `...`, `->`, `2 to N`. `·` is
+  fine, and plain shape and edge labels are not affected.
+- Some edges are thinner or not animated: an edge glob covers one arrow type (see Styles).
+- Children ignore a container's `direction`: only TALA honours it (see Containers).

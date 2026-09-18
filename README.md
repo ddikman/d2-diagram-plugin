@@ -1,8 +1,9 @@
 # My D2 diagram style
 
 A personal Claude Code skill. Ask for a diagram and `/d2` writes a [D2](https://d2lang.com) source
-file next to a rendered PNG (or SVG, or an animated GIF) in my style: hand-drawn sketch mode, slate
-ink, teal and cyan shapes, yellow groups, soft orange databases, on warm grey paper.
+file next to a rendered PNG (or SVG; ask for animated and the lines flow) in my style: hand-drawn
+sketch mode, slate ink, teal and cyan shapes, yellow groups, soft orange databases, on warm grey
+paper.
 
 ## Install
 

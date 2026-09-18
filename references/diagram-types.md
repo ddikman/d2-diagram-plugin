@@ -14,10 +14,10 @@ diagram answers one question; when a request mixes two, make two diagrams.
 | Lifecycle, modes, transitions | State diagram | Plain shapes for states, `shape: circle` for initial/final, labelled edges for events, `style.stroke-dash` for optional transitions | dagre, `direction: right` |
 | Where something sits in a hierarchy (org, taxonomy, file tree) | Tree | Nesting or edges, `direction: down` | dagre |
 | Compare options side by side, a matrix, a dashboard | Grid | `grid-rows` / `grid-columns` on a container, `grid-gap`; cells are plain shapes with `|md` text | no edges inside grids |
-| The same system in several stages (build-up, rollout, migration) | Steps animation | `steps: { 1: {...}; 2: {...} }`, each step inherits the previous; render with `--animate-interval` to gif or svg | one file per animation |
+| Anything "animated": data or traffic moving through the system, calls in order | Animated lines | One board, `style.animated: true` on the connections, numbered edge labels for order | SVG plus a still PNG; see the example below |
+| The same system in several stages, and only when asked for a step-by-step walkthrough | Steps walkthrough | `steps: { 1: {...}; 2: {...} }`, each step inherits the previous; render with `--animate-interval` to svg | follow the walkthrough recipe below |
 | Alternatives of one baseline (happy path vs error, before vs after) | Scenarios | `scenarios: { error: {...} }` inherits the root board | render one with `--target scenarios.error` or animate |
 | Several views of one system (overview, detail) | Layers | `layers: { detail: {...} }` independent boards; `link: layers.detail` from an overview shape drills down in SVG | render `--target layers.detail` |
-| Data or traffic flowing through a static picture | Animated edges | `style.animated: true` on the connections | SVG only |
 
 ## When not to use D2
 
@@ -88,26 +88,101 @@ orders: orders {
 orders.user_id -> users.id
 ```
 
-### Walkthrough as steps (animated)
+### Animated flow (one board, the lines move)
+
+```d2
+...@_style
+
+direction: down
+
+backend: Backend {
+  tokens: Token endpoint
+}
+phone: Phone {
+  cache: Credential cache
+  speech: Speech service
+}
+provider: Speech provider {shape: cloud}
+
+# "<-" keeps Backend on top although the request points up.
+phone.cache <- phone.speech: 1 · get credential
+backend.tokens <- phone.cache: 2 · mint
+backend.tokens -> phone.cache: 3 · credential
+phone.cache -> phone.speech: 4 · credential
+phone.speech -> provider: 5 · open socket {style.stroke: "#8cc63f"}
+
+(** -> **)[*].style.animated: true
+(** <- **)[*].style.animated: true
+```
+
+Render `d2 x.d2 x.svg` for the animation and `d2 x.d2 x.png` for the still. One board means one
+layout, so nothing can jump, and the SVG stays under 200 KB (a `|md` block adds about 40 KB of
+embedded fonts).
+
+## Step-by-step walkthrough (only when asked for one)
+
+A walkthrough is several boards shown one after the other, so everything that differs between
+boards shows up as a glitch. The rules that keep it steady:
+
+- **Ghost first.** Put the whole picture on the root board: every shape, and every edge with
+  `style.opacity: 0.15` written on the edge itself. Steps only restyle
+  (`(a -> b)[0].style.opacity: 1`) and never add anything, so every board has the same layout.
+- **Caption** as `caption: |md # ... | {near: top-center}`, re-assigned in each step. A heading
+  sizes itself; a `font-size` override would be lost in the steps. Keep it narrower than the
+  diagram: a wider caption widens that one board and the picture jumps.
+- **Steps inherit everything**, labels and styles included. Switch off what no longer applies
+  (`style.animated: false`, a changed label back to its original), above all in the closing step.
+- **A highlight must differ from the shape's default fill**: `stored_data` is already pink and
+  cylinders orange, so lighting them up in those colours changes nothing.
+- **Check every board before animating:** `d2 --target 'steps.2' x.d2 x-step2.png` takes under a
+  second. Read each one, confirm they are all the same size, then delete them by exact name (in
+  zsh an unmatched glob aborts the whole command).
+- **Render** `d2 --animate-interval 3000 x.d2 x.svg`; three seconds gives time to read a caption.
 
 ```d2
 ...@_style
 
 direction: right
 
+caption: |md
+  # Cache-aside read
+| {near: top-center}
+
+client: Client {shape: person}
+api: API
+cache: Cache {shape: stored_data}
+db: Postgres {shape: cylinder}
+
+# The whole picture is on the root board as a ghost; steps only restyle it, so nothing moves.
+client -> api: request {style.opacity: 0.15}
+api -> cache: lookup {style.opacity: 0.15}
+api -> db: query {style.opacity: 0.15}
+client <- api: response {style.opacity: 0.15}
+
 steps: {
   1: {
-    client -> api: request
+    caption: |md
+      # 1 · The client asks the API
+    |
+    (client -> api)[0].style.opacity: 1
+    (client -> api)[0].style.animated: true
   }
   2: {
-    api -> cache: lookup {style.stroke-dash: 3}
+    caption: |md
+      # 2 · Miss: read the database
+    |
+    (client -> api)[0].style.animated: false
+    (api -> cache)[0].style.opacity: 1
+    (api -> db)[0].style.opacity: 1
+    (api -> db)[0].style.animated: true
   }
   3: {
-    api -> db: query
-    db -> api: rows
-  }
-  4: {
-    api -> client: response
+    caption: |md
+      # 3 · The answer goes back
+    |
+    (api -> db)[0].style.animated: false
+    (client <- api)[0].style.opacity: 1
+    (client <- api)[0].style.animated: true
   }
 }
 ```
