@@ -3,14 +3,14 @@ name: d2
 description: >-
   Draw diagrams with D2 (d2lang) in my personal style: architecture, system and service diagrams,
   request and data flows, sequence diagrams, ER/SQL schemas, state machines, and any picture for a
-  README, design doc, PR or slide. Writes a .d2 source next to a rendered PNG (default), SVG or
-  animated GIF. Use whenever I ask to diagram, draw, sketch, visualise or map out a system, flow,
-  process, pipeline or architecture, or mention D2 or a .d2 file.
+  README, design doc, PR or slide. Writes a .d2 source next to a rendered PNG (default), SVG or an
+  animated SVG whose lines flow. Use whenever I ask to diagram, draw, sketch, visualise or map out a
+  system, flow, process, pipeline or architecture, or mention D2 or a .d2 file.
 argument-hint: "[what to draw | path/to/file.d2] [as svg|animated]"
 compatibility: >-
   Needs the d2 CLI; when it is missing the skill asks before installing it (Homebrew on macOS,
-  otherwise the official install script into ~/.local). PNG and GIF output need d2's one-time
-  Chromium download, which is also asked about first.
+  otherwise the official install script into ~/.local). PNG output needs d2's one-time Chromium
+  download, which is also asked about first.
 allowed-tools:
   - Bash(d2 *)
   - Read
@@ -51,7 +51,9 @@ style: !`ls docs/diagrams/_style.d2 diagrams/_style.d2 2>/dev/null || echo "none
    edit that file rather than starting over.
 3. **Write `docs/diagrams/<slug>.d2`.** Line 1 is `...@_style`, then a blank line, `direction:`
    and the content. Labels of three or four words, detail in `tooltip` or `|md` blocks, 10 to 30
-   nodes per board. The house rules already size labels and strokes, so do not restyle nodes; override
+   nodes per board. A PR or README shows the picture about 850 px wide, and every hop of
+   `direction: right` adds width: use `direction: down` when edge labels are long, and shorten
+   labels first. The house rules already size labels and strokes, so do not restyle nodes; override
    one thing when needed (`api.style.fill: "#f89058"`). A diagram that wants another layout engine
    adds `vars: {d2-config: {layout-engine: elk}}` after the import. Syntax that is easy to get wrong:
    `${CLAUDE_SKILL_DIR}/references/d2-cheatsheet.md`.
@@ -61,14 +63,20 @@ style: !`ls docs/diagrams/_style.d2 diagrams/_style.d2 2>/dev/null || echo "none
    command with `env -u D2_THEME -u D2_SKETCH -u D2_LAYOUT -u D2_PAD`.
    - PNG (default): `d2 docs/diagrams/x.d2 docs/diagrams/x.png` (`--scale 2` for retina READMEs)
    - SVG: `d2 docs/diagrams/x.d2 docs/diagrams/x.svg`
-   - Animated: write the diagram as `steps:` (each step inherits the previous) or `scenarios:`,
-     then `d2 --animate-interval 1200 docs/diagrams/x.d2 docs/diagrams/x.gif`, or `x-animated.svg`
-     when I ask for SVG. A single-board file has nothing to animate; for "animated arrows" on a
-     static picture set `style.animated: true` on the connections instead (SVG only).
-   - The first PNG or GIF on a machine makes d2 ask to download Chromium (about 150 MB). Ask me once,
+   - Animated means the lines move, never a slideshow of frames. Keep one board and set
+     `style.animated: true` on the connections that carry the flow, or on all of them with one glob
+     per arrow type in use (`(** -> **)[*].style.animated: true`, the same again with `<-`). Dashes
+     flow towards the arrowhead. Number the edge labels when order matters (`"1 · mint"`) and colour
+     the main path. Render both `x.svg` (the animation) and `x.png` (the still, for step 6 and for
+     Slack or slides, which cannot play SVG). Only SVG moves: never make a PNG or GIF "animated".
+   - A step-by-step walkthrough (`steps:`) only when I ask for one in those words; follow the
+     recipe in `${CLAUDE_SKILL_DIR}/references/diagram-types.md`.
+   - The first PNG on a machine makes d2 ask to download Chromium (about 150 MB). Ask me once,
      then run the same command with `CI=1` in front and a long timeout. If I decline, render SVG.
-6. **Look at it.** Read the PNG and check for overlapping labels, edges through boxes, the wrong
-   direction. Fix the source (containers, `direction`, `layout-engine: elk`, split) and re-render.
+6. **Look at it.** Read the PNG and check for overlapping labels, labels running into a container
+   border, edges through boxes, the wrong direction. If labels are hard to read with the whole
+   picture in view, the canvas is too wide for a PR. Fix the source (containers, `direction`,
+   two-line labels, `layout-engine: elk`, split) and re-render.
 7. **Report.** Source path, output path and an embed line such as
    `![Checkout flow](docs/diagrams/checkout-flow.png)`.
 
@@ -85,6 +93,8 @@ rendering.
 
 - Icons (`icon: https://icons.terrastruct.com/...`) need network at render time; use them only when asked.
 - `tooltip` and `link` survive only in SVG.
+- Keep `|md` text to ASCII plus `·`. A glyph the sketch font lacks (`…`, arrows, emoji) renders wider
+  than d2 measured, so the line wraps and is cut off. `d2 validate` cannot see it, only the render.
 - `elk` is slower than `dagre`; pass `--timeout 300` for big graphs. Sequence diagrams ignore the
   layout engine; keep them to about a dozen messages.
 - `d2 -w <file>` is a live preview for hand edits; suggest it, never run it (it does not exit).
