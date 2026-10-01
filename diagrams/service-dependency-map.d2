@@ -1,0 +1,36 @@
+...@_style
+
+direction: right
+
+# Small circles with the name underneath, like a tracing tool draws them.
+*: {shape: circle; width: 56; height: 56; label.near: outside-bottom-center}
+
+gateway
+orders
+search
+inventory
+payments: {
+  style.stroke: "#c8401f"
+  style.font-color: "#c8401f"
+}
+opensearch
+stripe: Stripe {
+  style.stroke-dash: 5
+  style.fill: "#fbfaf6"
+}
+
+gateway -> orders: 620 rps
+gateway -> search: 910 rps
+orders -> inventory: 300 rps
+search -> opensearch: 1.2k rps
+
+# The problem: errors on one call, latency behind it.
+orders -> payments: 4.1% 5xx {
+  style.stroke: "#c8401f"
+  style.font-color: "#c8401f"
+}
+payments -> stripe: p95 820ms {
+  style.stroke: "#c8401f"
+  style.font-color: "#c8401f"
+  style.stroke-dash: 5
+}

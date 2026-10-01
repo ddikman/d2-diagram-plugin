@@ -1,0 +1,28 @@
+...@_style
+
+shape: sequence_diagram
+
+# Actors appear left to right in the order they are declared.
+customer: Customer {shape: person}
+web: Web app
+orders: Orders
+payments: Payments
+stripe: Stripe {
+  style.stroke-dash: 5
+  style.fill: "#fbfaf6"
+}
+
+customer -> web: place order
+web -> orders: POST /orders
+orders -> payments: charge
+payments -> stripe: create charge {
+  style.stroke: "#c8401f"
+  style.font-color: "#c8401f"
+}
+stripe -> payments: succeeded {
+  style.stroke: "#c8401f"
+  style.font-color: "#c8401f"
+}
+payments -> orders: paid
+orders -> web: 201 Created
+web -> customer: order confirmed

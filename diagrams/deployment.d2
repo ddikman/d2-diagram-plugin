@@ -1,0 +1,34 @@
+...@_style
+
+# Down, not right: six hops side by side would be far wider than a PR.
+direction: down
+
+users: Users {shape: person}
+cdn: CDN {shape: cloud}
+alb: ALB
+
+aws: "AWS · eu-central-1" {
+  # A centred label sits where the incoming edge enters.
+  label.near: top-left
+  style.stroke-dash: 5
+
+  eks: EKS cluster {
+    label.near: top-left
+    payments: "payments ×2" {style.multiple: true}
+    orders: "orders ×3" {
+      style.multiple: true
+      style.stroke: "#c8401f"
+      style.font-color: "#c8401f"
+    }
+    web: "web ×2" {style.multiple: true}
+  }
+
+  primary: "primary\nAZ-a" {shape: cylinder}
+  replica: "replica\nAZ-b" {shape: cylinder}
+}
+
+users -> cdn: HTTPS
+cdn -> alb: cache miss
+alb -> aws.eks: routes
+aws.eks.orders -> aws.primary: SQL
+aws.primary -> aws.replica: replicates {style.stroke-dash: 5}

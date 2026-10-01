@@ -1,0 +1,27 @@
+...@_style
+
+direction: right
+
+customer: Customer {shape: person}
+staff: Store staff {shape: person}
+
+# The one thing this diagram is about: brick red outline and label.
+pantry: "Pantry\n[software system]" {
+  style.stroke: "#c8401f"
+  style.font-color: "#c8401f"
+}
+
+# Outside our control: dashed and pale.
+stripe: "Stripe\n[external]" {
+  style.stroke-dash: 5
+  style.fill: "#fbfaf6"
+}
+sendgrid: "SendGrid\n[external]" {
+  style.stroke-dash: 5
+  style.fill: "#fbfaf6"
+}
+
+customer -> pantry: orders
+staff -> pantry: packs orders
+pantry -> stripe: charges card
+pantry -> sendgrid: sends receipts

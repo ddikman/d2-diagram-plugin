@@ -1,0 +1,62 @@
+...@_style
+
+direction: right
+
+vars: {
+  d2-config: {
+    layout-engine: elk
+  }
+}
+
+customer: Customer {
+  shape: class
+  -id: UUID
+  -email: String
+  +placeOrder()
+}
+
+# On a class, style.fill colours the header; style.stroke would flood the rows.
+order: Order {
+  shape: class
+  -id: UUID
+  -status: Status
+  -total: Money
+  +cancel()
+  style.fill: "#c8401f"
+}
+
+line: OrderLine {
+  shape: class
+  -sku: String
+  -qty: int
+}
+
+payment: Payment {
+  shape: class
+  -amount: Money
+  +refund()
+}
+
+card: CardPayment {
+  shape: class
+  -last4: String
+}
+
+# Arrowhead labels carry the cardinality.
+customer -> order: places {
+  source-arrowhead: 1
+  target-arrowhead: "0..*"
+}
+# Composition: a filled diamond on Order. An arrowhead shape needs an arrow on that
+# end, hence "<-"; elk still lays Order out first.
+order <- line: contains {
+  source-arrowhead: {shape: diamond; style.filled: true}
+  target-arrowhead: "1..*"
+}
+order -> payment: paid by {
+  source-arrowhead: 1
+  target-arrowhead: "0..1"
+}
+card -> payment: is a {
+  target-arrowhead: {shape: triangle; style.filled: false}
+}

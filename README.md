@@ -18,6 +18,30 @@ SVG below, whose lines flow.
   <img src="diagrams/animated-svg-process.svg" alt="How /d2 turns a request into an animated SVG" width="540">
 </p>
 
+## Diagram types
+
+One diagram, one argument: `/d2` picks the type from the question the picture has to answer. My
+everyday three come first, then six more worth knowing. All nine draw the same small online shop,
+and when you ask for one of these types the skill starts from its file.
+
+<table>
+  <tr>
+    <td width="33%" valign="top"><a href="diagrams/sequence.png"><img src="diagrams/sequence.png" alt="Sequence diagram of placing an order" width="260"></a><br><a href="diagrams/sequence.d2"><b>Sequence</b></a>: who does what, in which order?</td>
+    <td width="33%" valign="top"><a href="diagrams/flow.png"><img src="diagrams/flow.png" alt="Flow diagram for accepting an order" width="260"></a><br><a href="diagrams/flow.d2"><b>Flow</b></a>: what happens, and where does it branch?</td>
+    <td width="33%" valign="top"><a href="diagrams/process.png"><img src="diagrams/process.png" alt="Process from order placed to delivered" width="260"></a><br><a href="diagrams/process.d2"><b>Process</b></a>: what are the steps, start to finish?</td>
+  </tr>
+  <tr>
+    <td valign="top"><a href="diagrams/c4-context.png"><img src="diagrams/c4-context.png" alt="C4 system context of the shop" width="260"></a><br><a href="diagrams/c4-context.d2"><b>C4 system context</b></a>: what is in scope, and who and what does it talk to?</td>
+    <td valign="top"><a href="diagrams/deployment.png"><img src="diagrams/deployment.png" alt="Deployment of the shop on AWS" width="260"></a><br><a href="diagrams/deployment.d2"><b>Deployment</b></a>: where does it run?</td>
+    <td valign="top"><a href="diagrams/component.png"><img src="diagrams/component.png" alt="Components of the orders service" width="260"></a><br><a href="diagrams/component.d2"><b>Component</b></a>: what are the parts, and who depends on whom?</td>
+  </tr>
+  <tr>
+    <td valign="top"><a href="diagrams/class.png"><img src="diagrams/class.png" alt="Class diagram of orders and payments" width="260"></a><br><a href="diagrams/class.d2"><b>Class</b></a>: which entities, with which fields and cardinalities?</td>
+    <td valign="top"><a href="diagrams/sitemap.png"><img src="diagrams/sitemap.png" alt="Sitemap of the shop" width="260"></a><br><a href="diagrams/sitemap.d2"><b>Sitemap</b></a>: which pages and routes exist?</td>
+    <td valign="top"><a href="diagrams/service-dependency-map.png"><img src="diagrams/service-dependency-map.png" alt="Service dependency map during an incident" width="260"></a><br><a href="diagrams/service-dependency-map.d2"><b>Service dependency map</b></a>: where does live traffic go, and where do errors sit?</td>
+  </tr>
+</table>
+
 ## Install
 
 The skill follows Anthropic's open [Agent Skills](https://agentskills.io) format, so it installs
@@ -62,4 +86,5 @@ Edit `style.d2` to change the master, then copy it over a repo's `_style.d2` and
 colour keys are explained at the top of the file.
 
 `references/` holds the two notes the skill reads while drawing: which diagram fits which question,
-and the D2 syntax that is easy to get wrong.
+and the D2 syntax that is easy to get wrong. `diagrams/` holds the worked example for each type
+above, which the skill reads before drawing that type.
