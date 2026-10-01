@@ -1,0 +1,35 @@
+...@_style
+
+direction: down
+
+vars: {
+  d2-config: {
+    layout-engine: elk
+  }
+}
+
+home: Home
+shop: Shop
+account: Account
+help: Help
+categories: Categories
+product: Product
+orders: Orders
+addresses: Addresses
+faq: FAQ
+contact: Contact
+detail: "Order detail\n/orders/:id" {
+  style.stroke: "#c8401f"
+  style.font-color: "#c8401f"
+}
+
+home -- shop
+home -- account
+home -- help
+shop -- categories
+shop -- product
+account -- orders
+account -- addresses
+orders -- detail
+help -- faq
+help -- contact

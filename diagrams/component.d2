@@ -1,0 +1,31 @@
+...@_style
+
+direction: right
+
+# The UML component icon in each box's top-right corner. Copy _component-icon.svg
+# from the skill's diagrams/ folder next to this file; d2 embeds it when rendering.
+# The glyph sits small in a corner of its 64 px icon box, the label stays centred,
+# and the width keeps the box from turning square (220 fits about 16 characters).
+classes: {
+  component: {
+    icon: ./_component-icon.svg
+    icon.near: top-right
+    label.near: center-center
+    width: 220
+  }
+}
+
+ui: Checkout UI {class: component}
+orders: Orders {
+  class: component
+  style.stroke: "#c8401f"
+  style.font-color: "#c8401f"
+}
+payments: Payments {class: component}
+inventory: Inventory {class: component}
+
+# Edge labels name the interface: solid for a call into a component's own API,
+# dashed for a dependency on another component's interface.
+ui -> orders: OrderAPI
+orders -> payments: IPayment {style.stroke-dash: 5}
+orders -> inventory: IStock {style.stroke-dash: 5}

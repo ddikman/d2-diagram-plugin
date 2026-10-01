@@ -1,0 +1,26 @@
+...@_style
+
+direction: down
+
+start: Order received {shape: oval}
+stock: In stock? {shape: diamond}
+offer: Offer substitutes
+accepted: Accepted? {shape: diamond}
+charge: Charge card
+paid: Paid? {
+  shape: diamond
+  style.stroke: "#c8401f"
+  style.font-color: "#c8401f"
+}
+pack: Send to packing {shape: oval}
+cancel: Cancel order {shape: oval}
+
+start -> stock: check
+stock -> charge: yes
+stock -> offer: no
+offer -> accepted: ask customer
+accepted -> charge: yes
+accepted -> cancel: no
+charge -> paid: Stripe reply
+paid -> pack: yes
+paid -> cancel: no
