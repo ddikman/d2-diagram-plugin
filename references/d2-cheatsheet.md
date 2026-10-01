@@ -149,8 +149,14 @@ Long labels: `x: "Two line\nlabel"` or a markdown block. `x.tooltip: text` and
 ## Positions with `near`
 
 Constants: `top-left`, `top-center`, `top-right`, `center-left`, `center-right`, `bottom-left`,
-`bottom-center`, `bottom-right`. Typical use: a title or legend `{near: top-center}`. `x.near: y`
+`bottom-center`, `bottom-right`. A shape placed with a constant sits outside the layout, so the
+diagram does not move: a title `{near: top-center}`. A corner constant puts it diagonally outside
+the picture (`top-right` is above and to the right), so the canvas grows both ways. `x.near: y`
 places `x` beside another shape (`x` must be at the root level).
+
+A legend is a small container written last and left in the layout, which tucks it into free space
+(recipe in `diagram-types.md`). d2's own `vars: {d2-legend: {...}}` draws a white card in 14 px
+plain text with hairline swatch outlines, outside the house style.
 
 ## Icons and images
 
