@@ -151,8 +151,9 @@ meaning per row, drawn from the same classes as the picture so it cannot drift f
   the colour of the root shapes it stands for. On a component diagram the shapes take both
   classes, `class: [component; changed]`.
 - **Keep it small and quiet**, so it does not compete with the picture: a 24 px swatch per kind
-  with its meaning beside it as `shape: text` in 16 px plain, on the paper fill `#f3f1ea` with a
-  1 px frame (left alone, a container is yellow with a heavy outline and reads as a group).
+  with its meaning beside it as `shape: text` in 16 px plain, in an untitled container
+  (`legend: ""`; the swatches explain themselves) on the paper fill `#f3f1ea` with a 1 px frame.
+  Left alone, a container is yellow with a heavy outline and reads as a group.
   `grid-rows`, one per kind, comes before `grid-columns: 2`; the other way round, the swatches
   fill one column and the labels the next.
 - **Write it last and leave `near` off.** The layout tucks it into free space beside the first
@@ -185,12 +186,12 @@ orders -> giftcards: redeem card
 orders -> inventory: reserve
 orders -> stripe: charge the rest
 
-# The key, written last: one row per class, a swatch and its meaning.
-legend: Legend {
+# The key, written last and untitled: one row per class, a swatch and its meaning.
+legend: "" {
   grid-rows: 4
   grid-columns: 2
   grid-gap: 10
-  style: {fill: "#f3f1ea"; stroke-width: 1; font-size: 16}
+  style: {fill: "#f3f1ea"; stroke-width: 1}
   *.style.font-size: 16
   *.style.bold: false
   added: "" {class: added; width: 24; height: 24}
