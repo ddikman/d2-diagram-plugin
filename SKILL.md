@@ -81,6 +81,14 @@ style: !`ls docs/diagrams/_style.d2 diagrams/_style.d2 2>/dev/null || echo "none
    labels first. A diagram that wants another layout engine adds
    `vars: {d2-config: {layout-engine: elk}}` after the import. Syntax that is easy to get wrong:
    `${CLAUDE_SKILL_DIR}/references/d2-cheatsheet.md`.
+
+   When colour sorts shapes into kinds the reader has to decode (what a PR adds, changes or
+   leaves alone; which team owns what; what is live and what is planned), the diagram gets a
+   small legend. Make each kind a class named for its meaning, the plain default included, and
+   give every class its own `style.fill`. The legend has one row per class, a small swatch with
+   its meaning beside it, plus rows for the highlight and dashed externals if the diagram has
+   them. A diagram whose only colours are the highlight and dashed externals needs no legend.
+   Recipe: `${CLAUDE_SKILL_DIR}/references/diagram-types.md`.
 4. **Format and validate.** `d2 fmt <file> && d2 validate <file>`; errors are `file:line:col: message`.
 5. **Render** next to the source, same basename. Never pass `--theme`, `--sketch`, `--layout` or
    `--pad`: flags override the style file. If any `D2_*` variable is set in the shell, prefix the
@@ -98,9 +106,10 @@ style: !`ls docs/diagrams/_style.d2 diagrams/_style.d2 2>/dev/null || echo "none
    - The first PNG on a machine makes d2 ask to download Chromium (about 150 MB). Ask me once,
      then run the same command with `CI=1` in front and a long timeout. If I decline, render SVG.
 6. **Look at it.** Read the PNG and check for overlapping labels, labels running into a container
-   border, edges through boxes, the wrong direction. If labels are hard to read with the whole
-   picture in view, the canvas is too wide for a PR. Fix the source (containers, `direction`,
-   two-line labels, `layout-engine: elk`, split) and re-render.
+   border, edges through boxes, the wrong direction, a colour that sorts shapes but has no legend
+   row, and a legend swatch that looks different from its shapes. If labels are hard to read
+   with the whole picture in view, the canvas is too wide for a PR. Fix the source (containers,
+   `direction`, two-line labels, `layout-engine: elk`, split) and re-render.
 7. **Report.** Source path, output path and an embed line for the doc, ticket or PR where the
    diagram is used, such as `![Checkout flow](docs/diagrams/checkout-flow.png)`.
 

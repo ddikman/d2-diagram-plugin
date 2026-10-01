@@ -134,10 +134,75 @@ traffic goes (service dependency map).
   `style.multiple: true` for replicas, `style.3d` sparingly. Systems outside our control are dashed
   and pale, `{style.stroke-dash: 5; style.fill: "#fbfaf6"}`. The style file already chose the
   palette.
-- Use a legend (`legend: |md ... | {near: bottom-right}`) only when a style carries meaning
-  (dashed = async, for example).
+- A colour that sorts shapes into kinds (added, changed or untouched; one team's or another's)
+  gets a small legend built from the same classes as the shapes; see the recipe below. The single
+  highlight and dashed externals need none on their own.
 - Prefer `elk` when many edges cross or when the reader expects straight, orthogonal lines (class
   diagrams, trees). Prefer `dagre` for flows and small graphs; it is faster and more compact.
+
+## Legend (colour that sorts shapes into kinds)
+
+A colour that marks a kind of shape (what a PR adds or changes, which team owns what, what is
+still planned) means nothing until the reader is told. The legend is a small key, a swatch and its
+meaning per row, drawn from the same classes as the picture so it cannot drift from it:
+
+- **One class per kind**, named for its meaning, the plain default included. Every class sets
+  `style.fill`: a swatch inside the legend otherwise turns the darker teal of nested shapes, not
+  the colour of the root shapes it stands for. On a component diagram the shapes take both
+  classes, `class: [component; changed]`.
+- **Keep it small and quiet**, so it does not compete with the picture: a 24 px swatch per kind
+  with its meaning beside it as `shape: text` in 16 px plain, on the paper fill `#f3f1ea` with a
+  1 px frame (left alone, a container is yellow with a heavy outline and reads as a group).
+  `grid-rows`, one per kind, comes before `grid-columns: 2`; the other way round, the swatches
+  fill one column and the labels the next.
+- **Write it last and leave `near` off.** The layout tucks it into free space beside the first
+  row (under the first column in `direction: right`). If it lands against an edge,
+  `near: top-right` moves it to the corner outside the picture, which makes the canvas wider and
+  taller.
+- **Once there is a legend, every style in the picture has a row**, the highlight and dashed
+  externals included.
+
+```d2
+...@_style
+
+direction: down
+
+classes: {
+  added: {style.fill: "#6ccbd8"; style.stroke: "#c8401f"; style.font-color: "#c8401f"}
+  changed: {style.fill: "#fbd3c9"}
+  untouched: {style.fill: "#6ccbd8"}
+  external: {style.stroke-dash: 5; style.fill: "#fbfaf6"}
+}
+
+ui: Checkout UI {class: changed}
+orders: Orders {class: changed}
+giftcards: Gift cards {class: added}
+inventory: Inventory {class: untouched}
+stripe: Stripe {class: external}
+
+ui -> orders: place order
+orders -> giftcards: redeem card
+orders -> inventory: reserve
+orders -> stripe: charge the rest
+
+# The key, written last: one row per class, a swatch and its meaning.
+legend: Legend {
+  grid-rows: 4
+  grid-columns: 2
+  grid-gap: 10
+  style: {fill: "#f3f1ea"; stroke-width: 1; font-size: 16}
+  *.style.font-size: 16
+  *.style.bold: false
+  added: "" {class: added; width: 24; height: 24}
+  added-label: Added {shape: text}
+  changed: "" {class: changed; width: 24; height: 24}
+  changed-label: Changed {shape: text}
+  untouched: "" {class: untouched; width: 24; height: 24}
+  untouched-label: Untouched {shape: text}
+  external: "" {class: external; width: 24; height: 24}
+  external-label: External {shape: text}
+}
+```
 
 ## Animated flow (one board, the lines move)
 
