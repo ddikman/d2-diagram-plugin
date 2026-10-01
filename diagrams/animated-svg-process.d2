@@ -29,7 +29,7 @@ check -> png: "4 · render"
 png -> look: "5 · read the PNG"
 look -> report: "6 · report"
 
-# "<-" keeps Write above the checks that send it back.
+# The checks send Write back; the main path above keeps it on top (dagre ranks by arrowheads).
 write <- check: error
 write <- look: fix
 

@@ -56,13 +56,16 @@ a -> b: {                 # styled edge
 (a -> b)[0].style.stroke: red   # refer to an existing edge by index
 ```
 
-Layout engines rank shapes from source to target, whatever the arrowhead says. To keep `backend`
-above `phone` when the request points up, write `backend.api <- phone.app: request`: the arrowhead
-(and the animation) still points at the backend. Refer to it with the same spelling,
-`(backend.api <- phone.app)[0]`.
+Which shape comes first depends on the engine. dagre (the default) ranks by the arrowhead:
+`a -> b` and `b <- a` both put `a` first. elk ranks by the order you write the shapes:
+`backend.api <- phone.app` keeps `backend` above `phone` although the arrow points up. In dagre,
+keep `backend` on top with an edge that points down (the reply), or switch to elk. Refer to an
+edge with the spelling it was written in, `(backend.api <- phone.app)[0]`.
 
 Arrowheads: `triangle` (default), `arrow`, `diamond`, `circle`, `box`, `cf-one`, `cf-many`,
-`cf-one-required`, `cf-many-required`, `cross`, `none`.
+`cf-one-required`, `cf-many-required`, `cross`, `none`. A shape shows only on an end that has an
+arrow: `source-arrowhead.shape` on `a -> b` draws nothing, so write `a <- b` (or `<->`). A label
+shows on either end: `source-arrowhead: 1` and `target-arrowhead: "0..*"` print cardinality.
 
 Edges into a container's child need the full path: `web -> api.handler`. Inside a container, `_`
 is the parent: `api: { handler -> _.db }` connects to the sibling `db` at the outer level.
@@ -81,6 +84,9 @@ platform.style.fill: "#f5f5f5"
 
 `direction` inside a container is honoured only by TALA. dagre and elk ignore it without a
 warning, so every container follows the root direction.
+
+A container's label sits top-centre, exactly where an edge from above enters it;
+`label.near: top-left` moves it out of the way.
 
 ## Styles
 
@@ -156,6 +162,11 @@ logo: {shape: image; icon: ./logo.png}
 Remote icons are fetched at render time (network needed). Local paths are relative to the `.d2`
 file and are embedded in the output.
 
+`icon.near: top-right` puts the icon in a corner. d2 gives an icon a box of about 64 px and grows
+the shape to fit it, so for a badge-sized mark draw the glyph small in one corner of a padded
+`viewBox` (as `diagrams/_component-icon.svg` does), set `label.near: center-center` so the label
+does not dodge it, and fix `width` so the box does not turn square.
+
 ## SQL tables
 
 ```d2
@@ -178,8 +189,12 @@ Repo: {
   -cache: Map
   +find(id string): Item
 }
-Repo -> Store: {target-arrowhead.shape: triangle}   # inheritance style
+Repo -> Store: {target-arrowhead: {shape: triangle; style.filled: false}}   # inheritance
 ```
+
+On `class` and `sql_table` shapes `style.fill` colours the header and `style.stroke` the rows, so
+highlight one with `style.fill`. Composition puts a filled diamond on the whole:
+`order <- line: {source-arrowhead: {shape: diamond; style.filled: true}}`.
 
 ## Sequence diagrams
 
@@ -221,7 +236,9 @@ options: Options {
 }
 ```
 
-No edges between cells; use a grid to lay out cards, not graphs.
+No edges between cells: d2 draws them as straight lines through whatever sits in between. Use a
+grid to lay out cards, not graphs. `grid-rows: 1` at the root lines shapes up in declaration
+order, which is how a process of `shape: step` chevrons stays as narrow as its steps.
 
 ## Boards: layers, scenarios, steps
 
@@ -296,3 +313,5 @@ block comment
   fine, and plain shape and edge labels are not affected.
 - Some edges are thinner or not animated: an edge glob covers one arrow type (see Styles).
 - Children ignore a container's `direction`: only TALA honours it (see Containers).
+- `reserved keywords are prohibited in edges` at render time: a shape is named `top` or `left`,
+  which are position keywords. Rename it (`upper`, `first`).
