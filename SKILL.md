@@ -1,11 +1,12 @@
 ---
 name: d2
 description: >-
-  Draw diagrams with D2 (d2lang) in my personal style: architecture, system and service diagrams,
-  request and data flows, sequence diagrams, ER/SQL schemas, state machines, and any picture for a
-  README, design doc, PR or slide. Writes a .d2 source next to a rendered PNG (default), SVG or an
-  animated SVG whose lines flow. Use whenever I ask to diagram, draw, sketch, visualise or map out a
-  system, flow, process, pipeline or architecture, or mention D2 or a .d2 file.
+  Draw diagrams with D2 (d2lang) in my personal style: sequence, flow and process diagrams, C4
+  system context, deployment, component and class diagrams, sitemaps, service dependency maps,
+  architecture, ER/SQL schemas, state machines, and any picture for a README, design doc, PR or
+  slide. Writes a .d2 source next to a rendered PNG (default), SVG or an animated SVG whose lines
+  flow. Use whenever I ask to diagram, draw, sketch, visualise or map out a system, flow, process,
+  pipeline, architecture, infrastructure or site structure, or mention D2 or a .d2 file.
 argument-hint: "[what to draw | path/to/file.d2] [as svg|animated]"
 compatibility: >-
   Needs the d2 CLI; when it is missing the skill asks before installing it (Homebrew on macOS,
@@ -45,17 +46,40 @@ style: !`ls docs/diagrams/_style.d2 diagrams/_style.d2 2>/dev/null || echo "none
 
 ## Drawing
 
-1. **Decide what to draw** with `${CLAUDE_SKILL_DIR}/references/diagram-types.md` (read it unless
-   the answer is obvious). One idea per diagram.
+1. **Pick the type from the question** the reader has: one diagram, one argument. My everyday three
+   cover most requests; the other six are for when the question matches.
+
+   | The reader asks | Draw | Start from |
+   |---|---|---|
+   | Who does what, in which order? | Sequence | `sequence.d2` |
+   | What happens, and where does it branch? | Flow | `flow.d2` |
+   | What are the steps, start to finish? | Process | `process.d2` |
+   | What is in scope, and who and what does it talk to? | C4 system context | `c4-context.d2` |
+   | Where does it run: regions, zones, clusters, replicas? | Deployment | `deployment.d2` |
+   | What are the parts, and who depends on whom? | Component | `component.d2` |
+   | Which entities, with which fields and cardinalities? | Class | `class.d2` |
+   | Which pages and routes exist? | Sitemap | `sitemap.d2` |
+   | Where does live traffic go, and where do errors sit? | Service dependency map | `service-dependency-map.d2` |
+
+   Read the matching example in `${CLAUDE_SKILL_DIR}/diagrams/` before writing; all nine draw one
+   small online shop. When the choice is not obvious,
+   `${CLAUDE_SKILL_DIR}/references/diagram-types.md` says when to use and skip each type and
+   covers what else D2 draws (ER schemas, state machines, grids). A request that mixes two
+   questions gets two diagrams.
 2. **Existing diagram?** If the request names a `.d2` file or matches one in the diagrams folder,
    edit that file rather than starting over.
 3. **Write `docs/diagrams/<slug>.d2`.** Line 1 is `...@_style`, then a blank line, `direction:`
-   and the content. Labels of three or four words, detail in `tooltip` or `|md` blocks, 10 to 30
-   nodes per board. A PR or README shows the picture about 850 px wide, and every hop of
-   `direction: right` adds width: use `direction: down` when edge labels are long, and shorten
-   labels first. The house rules already size labels and strokes, so do not restyle nodes; override
-   one thing when needed (`api.style.fill: "#f89058"`). A diagram that wants another layout engine
-   adds `vars: {d2-config: {layout-engine: elk}}` after the import. Syntax that is easy to get wrong:
+   (sequence diagrams and grids have none) and the content. Labels of three or four words, detail
+   in `tooltip` or `|md` blocks, at most 30 nodes per board, one level of abstraction, and a label
+   on every arrow. Highlight the one thing the diagram is about with a brick red outline and label,
+   `{style.stroke: "#c8401f"; style.font-color: "#c8401f"}` (on a `class` or `sql_table`,
+   `style.fill: "#c8401f"`), and draw systems outside our control dashed and pale,
+   `{style.stroke-dash: 5; style.fill: "#fbfaf6"}`. Beyond that, do not restyle nodes: the house
+   rules already size labels and strokes. Override one thing when needed
+   (`api.style.fill: "#f89058"`). A PR or README shows the picture about 850 px wide, and every hop
+   of `direction: right` adds width: use `direction: down` when edge labels are long, and shorten
+   labels first. A diagram that wants another layout engine adds
+   `vars: {d2-config: {layout-engine: elk}}` after the import. Syntax that is easy to get wrong:
    `${CLAUDE_SKILL_DIR}/references/d2-cheatsheet.md`.
 4. **Format and validate.** `d2 fmt <file> && d2 validate <file>`; errors are `file:line:col: message`.
 5. **Render** next to the source, same basename. Never pass `--theme`, `--sketch`, `--layout` or
@@ -77,8 +101,8 @@ style: !`ls docs/diagrams/_style.d2 diagrams/_style.d2 2>/dev/null || echo "none
    border, edges through boxes, the wrong direction. If labels are hard to read with the whole
    picture in view, the canvas is too wide for a PR. Fix the source (containers, `direction`,
    two-line labels, `layout-engine: elk`, split) and re-render.
-7. **Report.** Source path, output path and an embed line such as
-   `![Checkout flow](docs/diagrams/checkout-flow.png)`.
+7. **Report.** Source path, output path and an embed line for the doc, ticket or PR where the
+   diagram is used, such as `![Checkout flow](docs/diagrams/checkout-flow.png)`.
 
 ## Changing the style
 
@@ -91,7 +115,8 @@ rendering.
 
 ## Good to know
 
-- Icons (`icon: https://icons.terrastruct.com/...`) need network at render time; use them only when asked.
+- Remote icons (`icon: https://icons.terrastruct.com/...`) need network at render time; use them
+  only when asked. The component icon is a local file, so component diagrams always get it.
 - `tooltip` and `link` survive only in SVG.
 - Keep `|md` text to ASCII plus `·`. A glyph the sketch font lacks (`…`, arrows, emoji) renders wider
   than d2 measured, so the line wraps and is cut off. `d2 validate` cannot see it, only the render.

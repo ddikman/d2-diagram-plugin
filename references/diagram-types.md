@@ -1,20 +1,107 @@
 # Which diagram, when
 
 Pick the diagram from the question the reader has, not from the data you happen to have. One
-diagram answers one question; when a request mixes two, make two diagrams.
+diagram makes one argument; when a request mixes two questions, make two diagrams.
+
+## The shortlist
+
+Nine types answer most questions: my everyday three, then six more worth knowing. Each has a
+worked example in this skill's `diagrams/` folder, all of one online shop called Pantry. Read the
+matching one before writing: it shows the layout, the highlight and the labels that hold up in the
+house style.
+
+"An architecture diagram" names no question. Ask which one it answers: what is in scope (C4
+system context), what the parts are (component), where it runs (deployment), or where live
+traffic goes (service dependency map).
+
+### My everyday three
+
+**Sequence** · `sequence.d2`
+- Shows: actions between people, components or systems over time.
+- Use when: walking through a request, an integration or a handshake, call by call.
+- Skip when: the order does not matter (component, C4 system context).
+- D2: `shape: sequence_diagram`; declare the actors first, in the order they should appear; one
+  `a -> b: label` per message, about a dozen at most. The layout engine is ignored.
+
+**Flow** · `flow.d2`
+- Shows: decisions and branching.
+- Use when: the reader needs the rules: what happens when, and where the paths split.
+- Skip when: nothing branches (process).
+- D2: `direction: down`; `shape: oval` for start and end, `shape: diamond` for each question with
+  its answers on the outgoing edges (`yes` and `no`, or one edge per outcome); dagre.
+
+**Process** · `process.d2`
+- Shows: a simple process, left to right.
+- Use when: the steps are fixed and their order is the story: fulfilment, onboarding, a release.
+- Skip when: something branches (flow) or two parties trade messages (sequence).
+- D2: `shape: step` chevrons in a root grid (`grid-rows: 1`) with no edges: the order is the
+  picture. Past five steps, `grid-columns: 4` wraps them into rows instead of widening the picture.
+
+### Six more worth knowing
+
+**C4 system context** · `c4-context.d2`
+- Shows: your system as one box, among the people and external systems it talks to.
+- Use when: onboarding, scoping a project, or telling non-technical people what is in and out of
+  scope.
+- Skip when: you need to show anything inside the system (component).
+- D2: the system is one highlighted shape, `shape: person` for people, external systems dashed
+  and pale; `direction: right`.
+
+**Deployment** · `deployment.d2`
+- Shows: where software runs: regions, availability zones, clusters, databases, replicas.
+- Use when: discussing infrastructure, availability, failover or cost.
+- Skip when: the question is how the code is structured (component).
+- D2: nested containers for the region and the cluster, `shape: cylinder` for databases,
+  `style.multiple: true` with `×3` in the label for replicated services, the zone as a second label
+  line (a container per zone once a zone holds more than one thing). `direction: down`: the chain
+  from users to replica is too long to run sideways. `label.near: top-left` on the containers
+  keeps their labels clear of the incoming edge.
+
+**Component** · `component.d2`
+- Shows: the building blocks inside a system and the interfaces between them.
+- Use when: defining boundaries and dependencies between modules or services, or checking who
+  depends on whom.
+- Skip when: you need data-level detail (class) or runtime behaviour (sequence).
+- D2: one box per component with the UML component icon in its corner (the example's `component`
+  class; copy `_component-icon.svg` from this skill's `diagrams/` folder next to the diagram), the
+  interface name as the edge label; a solid edge for a call into the component's own API, dashed
+  for a dependency on another's interface (the UML convention); `direction: right`.
+
+**Class** · `class.d2`
+- Shows: entities, their fields and methods, and the relationships and cardinality between them.
+- Use when: agreeing on a domain model or data model before building.
+- Skip when: the audience does not care about the code model; it gets noisy fast. For the tables
+  of an existing database, draw an ER diagram (below).
+- D2: `shape: class` with `-field: Type` and `+method()`; cardinality as arrowhead labels
+  (`source-arrowhead: 1`, `target-arrowhead: "0..*"`); composition as a filled diamond on a `<-`
+  edge; inheritance as a hollow triangle. elk, `direction: right`.
+
+**Sitemap** · `sitemap.d2`
+- Shows: the page hierarchy of a site or app, including routes.
+- Use when: planning navigation and information architecture, or aligning design and engineering
+  on screens and URLs.
+- Skip when: you need the user's path between screens (flow).
+- D2: `--` lines from parent to child (hierarchy, not arrows, so they carry no labels), the route
+  of the page under discussion as a second label line; `direction: down`, elk for square tree lines.
+
+**Service dependency map** · `service-dependency-map.d2`
+- Shows: live services, the traffic between them, and where errors or latency sit.
+- Use when: debugging an incident, finding bottlenecks and blast radius.
+- Skip when: you want the intended architecture rather than observed reality (component).
+- D2: small `shape: circle` services with the name underneath
+  (`label.near: outside-bottom-center`), edges labelled with rates, error rates or latency, the
+  failing path highlighted; `direction: right`, dagre. It usually comes from tracing or APM data:
+  draw from the numbers I give you, and when I give none, ask for them rather than invent them.
+
+## Beyond the shortlist
 
 | The reader wants to know | Diagram | D2 construct | Layout notes |
 |---|---|---|---|
-| What happens in what order (process, pipeline, decision path) | Flowchart | Shapes and `->` edges, `direction: down` (or `right` for pipelines), `shape: diamond` for decisions, `shape: oval` for start/end | dagre; keep one main path top-to-bottom |
-| What the system is made of and what talks to what | Architecture / container diagram | Nested containers for boundaries, `shape: cylinder` (db), `queue`, `cloud`, `person`, `classes` for repeated roles, optional icons | elk for orthogonal edges in busy diagrams; `blueprint`/`c4` presets |
-| C4 context or container view | C4 | Same as above with the `c4` preset (theme 303), `shape: c4-person` for actors, containers per system | elk |
-| Who calls whom, in which order, with what result | Sequence diagram | `shape: sequence_diagram`; actors in order of first mention; messages `a -> b: label`; `group` for loops/alt; spans (`a.t1 -> b.t1`); notes (`a."text"`) | layout engine ignored; keep to about 12 messages, split longer flows |
-| How data is structured and related | ER diagram | `shape: sql_table` per table, `constraint: primary_key|foreign_key|unique`, relations `orders.user_id -> users.id` | dagre; `direction: right` for wide schemas |
-| Types, interfaces, inheritance | Class diagram | `shape: class`, `+field: type`, `-method(arg): ret`, edges with `target-arrowhead.shape: triangle` for inheritance, `diamond` for composition | dagre |
+| How the tables of a database relate | ER diagram | `shape: sql_table` per table, `constraint: primary_key` (or `foreign_key`, `unique`), relations `orders.user_id -> users.id` | dagre; `direction: right` for wide schemas |
 | Lifecycle, modes, transitions | State diagram | Plain shapes for states, `shape: circle` for initial/final, labelled edges for events, `style.stroke-dash` for optional transitions | dagre, `direction: right` |
-| Where something sits in a hierarchy (org, taxonomy, file tree) | Tree | Nesting or edges, `direction: down` | dagre |
-| Compare options side by side, a matrix, a dashboard | Grid | `grid-rows` / `grid-columns` on a container, `grid-gap`; cells are plain shapes with `|md` text | no edges inside grids |
-| Anything "animated": data or traffic moving through the system, calls in order | Animated lines | One board, `style.animated: true` on the connections, numbered edge labels for order | SVG plus a still PNG; see the example below |
+| Where something sits in a hierarchy (org, taxonomy, file tree) | Tree | The sitemap recipe: `--` lines from parent to child | elk, `direction: down` |
+| Compare options side by side, a matrix, a dashboard | Grid | `grid-rows` / `grid-columns` on a container, `grid-gap`; cells are plain shapes or markdown blocks | no edges inside grids |
+| Anything I ask to be "animated": data or traffic moving through the system | Animated lines | One board, `style.animated: true` on the connections, numbered edge labels for order | SVG plus a still PNG; see the example below |
 | The same system in several stages, and only when asked for a step-by-step walkthrough | Steps walkthrough | `steps: { 1: {...}; 2: {...} }`, each step inherits the previous; render with `--animate-interval` to svg | follow the walkthrough recipe below |
 | Alternatives of one baseline (happy path vs error, before vs after) | Scenarios | `scenarios: { error: {...} }` inherits the root board | render one with `--target scenarios.error` or animate |
 | Several views of one system (overview, detail) | Layers | `layers: { detail: {...} }` independent boards; `link: layers.detail` from an overview shape drills down in SVG | render `--target layers.detail` |
@@ -28,67 +115,31 @@ diagram answers one question; when a request mixes two, make two diagrams.
 
 ## Rules of thumb that keep diagrams readable
 
-- Ten to thirty nodes per board. Beyond that, group into containers, then split into layers.
+- **Highlight the one thing the diagram is about**, and nothing else: a brick red outline and
+  label, `{style.stroke: "#c8401f"; style.font-color: "#c8401f"}`, and the same on the edges of a
+  path. On `class` and `sql_table` shapes use `style.fill: "#c8401f"`; there `style.stroke` floods
+  the rows.
+- **Label every arrow** with a verb, a protocol or a number ("enqueue", "POST /orders", "620 rps"),
+  not a sentence. Lines that only show hierarchy (`--` in a tree) need none.
+- **One abstraction level per diagram.** The system as one box and its classes do not share a
+  picture; draw two and link them.
+- **Link the diagram from where it is used**: embed it in the doc, ticket or PR it explains.
+- At most about thirty nodes per board. Beyond that, group into containers, then split into layers.
 - Labels are three or four words. Long explanations go into `tooltip` (SVG hover) or a `|md`
   block next to the shape, not into the label.
-- Edge labels are verbs or protocols ("enqueue", "gRPC", "POST /orders"), not sentences.
 - One direction per diagram. Flows read top-to-bottom or left-to-right; do not mix.
 - Group by ownership or deployment boundary, not by shape type. A container called "Databases" is
   rarely useful; "Payments team" or "AWS account" is.
 - Distinguish with shape and edge style before colour: `style.stroke-dash` for async or optional,
-  `style.multiple: true` for replicas, `style.3d` sparingly. The style file already chose the palette.
+  `style.multiple: true` for replicas, `style.3d` sparingly. Systems outside our control are dashed
+  and pale, `{style.stroke-dash: 5; style.fill: "#fbfaf6"}`. The style file already chose the
+  palette.
 - Use a legend (`legend: |md ... | {near: bottom-right}`) only when a style carries meaning
   (dashed = async, for example).
-- Prefer `elk` when many edges cross or when the reader expects straight, orthogonal lines
-  (architecture, infra). Prefer `dagre` for flows and trees; it is faster and more compact.
+- Prefer `elk` when many edges cross or when the reader expects straight, orthogonal lines (class
+  diagrams, trees). Prefer `dagre` for flows and small graphs; it is faster and more compact.
 
-## Three small examples
-
-### Request flow (architecture, `direction: right`)
-
-```d2
-...@_style
-
-direction: right
-
-user: Customer {shape: person}
-web: Web app
-api: Orders API {
-  handler: Handler
-  validator: Validator
-  handler -> validator: check
-}
-db: Postgres {shape: cylinder}
-queue: Events {shape: queue}
-
-user -> web: browse
-web -> api.handler: POST /orders
-api.handler -> db: insert
-api.handler -> queue: order.created {style.stroke-dash: 3}
-```
-
-### Data model (`sql_table`)
-
-```d2
-...@_style
-
-direction: right
-
-users: users {
-  shape: sql_table
-  id: uuid {constraint: primary_key}
-  email: text {constraint: unique}
-}
-orders: orders {
-  shape: sql_table
-  id: uuid {constraint: primary_key}
-  user_id: uuid {constraint: foreign_key}
-  total: numeric
-}
-orders.user_id -> users.id
-```
-
-### Animated flow (one board, the lines move)
+## Animated flow (one board, the lines move)
 
 ```d2
 ...@_style
@@ -104,15 +155,14 @@ phone: Phone {
 }
 provider: Speech provider {shape: cloud}
 
-# "<-" keeps Backend on top although the request points up.
-phone.cache <- phone.speech: 1 · get credential
-backend.tokens <- phone.cache: 2 · mint
+# dagre ranks by the arrowheads: the reply (3) points down, so Backend stays on top.
+phone.speech -> phone.cache: 1 · get credential
+phone.cache -> backend.tokens: 2 · mint
 backend.tokens -> phone.cache: 3 · credential
 phone.cache -> phone.speech: 4 · credential
 phone.speech -> provider: 5 · open socket {style.stroke: "#8cc63f"}
 
 (** -> **)[*].style.animated: true
-(** <- **)[*].style.animated: true
 ```
 
 Render `d2 x.d2 x.svg` for the animation and `d2 x.d2 x.png` for the still. One board means one
