@@ -60,8 +60,13 @@ npx skills add ddikman/d2-diagram-plugin -a '*' -g
 ```
 
 Drop `-g` to install into the current project only (it lands in `.agents/skills/d2` with a
-symlink for each agent). `npx skills list` shows what is installed, `npx skills update` pulls
-the latest version, `npx skills remove d2` takes it out again.
+symlink for each agent). `npx skills list` shows what is installed and `npx skills remove d2`
+takes it out again.
+
+At the end of a run the skill compares its `VERSION` with the one on `main` (one `curl`, three
+seconds at most, silent when offline). If `main` is newer it says so and offers to update, and
+updates only after a yes. To do it by hand: `npx skills update d2 -g` (naming `d2`, because a bare
+`npx skills update` also updates your other skills) or `git pull` in a clone.
 
 The format has no install hooks, so nothing runs at install time. Instead the skill checks for
 [d2](https://d2lang.com) the first time it is used and, if it is missing, asks before installing
@@ -88,3 +93,6 @@ colour keys are explained at the top of the file.
 `references/` holds the two notes the skill reads while drawing: which diagram fits which question,
 and the D2 syntax that is easy to get wrong. `diagrams/` holds the worked example for each type
 above, which the skill reads before drawing that type.
+
+`VERSION` is what the update hint compares. Bump it in any PR that changes how the skill behaves;
+README and example tweaks can leave it alone.
