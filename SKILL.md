@@ -14,6 +14,7 @@ compatibility: >-
   download, which is also asked about first.
 allowed-tools:
   - Bash(d2 *)
+  - Bash(curl -fsS --max-time 3 https://raw.githubusercontent.com/ddikman/d2-diagram-plugin/main/VERSION)
   - Read
   - Write
   - Edit
@@ -111,7 +112,12 @@ style: !`ls docs/diagrams/_style.d2 diagrams/_style.d2 2>/dev/null || echo "none
    with the whole picture in view, the canvas is too wide for a PR. Fix the source (containers,
    `direction`, two-line labels, `layout-engine: elk`, split) and re-render.
 7. **Report.** Source path, output path and an embed line for the doc, ticket or PR where the
-   diagram is used, such as `![Checkout flow](docs/diagrams/checkout-flow.png)`.
+   diagram is used, such as `![Checkout flow](docs/diagrams/checkout-flow.png)`. Once per
+   conversation, before sending it, read `${CLAUDE_SKILL_DIR}/VERSION` and in the same batch run
+   `curl -fsS --max-time 3 https://raw.githubusercontent.com/ddikman/d2-diagram-plugin/main/VERSION`
+   exactly as written. If curl printed a bare number (digits and dots) higher than the local one,
+   end the report with one line: `d2 skill update available: you have 1, latest is 2. Update it?`
+   If curl fails, prints anything else, or the numbers match, say nothing about updates.
 
 ## Changing the style
 
@@ -121,6 +127,13 @@ are explained at the top of the file. Keep the `***` rules as triple globs (only
 import) and never put `style.3d` or `style.double-border` behind a glob: d2 rejects them on
 cylinders, people, queues and tables, and `d2 validate` will not warn you, so check style edits by
 rendering.
+
+## Updating
+
+Same rule as installing d2: update only after a clear yes. A git clone (`${CLAUDE_SKILL_DIR}/.git`
+exists): `git -C "${CLAUDE_SKILL_DIR}" pull --ff-only`. Otherwise it came from the skills CLI:
+`npx skills update d2 -g`, or `-p` instead of `-g` for a project-level install. Name `d2`: a bare
+`npx skills update` also updates my other skills. The next `/d2` run uses the new files.
 
 ## Good to know
 
