@@ -42,6 +42,18 @@ and when you ask for one of these types the skill starts from its file.
   </tr>
 </table>
 
+## Class diff for refactoring PRs
+
+For a PR that moves fields, methods or references between classes, `/d2` draws one board where
+what the PR removes pulses red, then what it adds pulses green, and nothing moves. It describes
+the before and after in a short JSON file ([`diagrams/class-diff.json`](diagrams/class-diff.json)),
+and `scripts/class-diff.py` draws it, animates it and checks both phases. On request, it also
+makes a still PNG with the two states side by side.
+
+<p align="center">
+  <img src="diagrams/class-diff.svg" alt="Class diff: what PR #12 removes pulses red, then what it adds pulses green" width="540">
+</p>
+
 ## Install
 
 The skill follows Anthropic's open [Agent Skills](https://agentskills.io) format, so it installs
@@ -72,7 +84,8 @@ The format has no install hooks, so nothing runs at install time. Instead the sk
 [d2](https://d2lang.com) the first time it is used and, if it is missing, asks before installing
 it: Homebrew on macOS, otherwise the official install script into `~/.local` (no sudo). Nothing
 is installed without a yes. To do it up front: `brew install d2` or
-`curl -fsSL https://d2lang.com/install.sh | sh -s --`.
+`curl -fsSL https://d2lang.com/install.sh | sh -s --`. Class diffs also need `python3`, 3.9 or
+later (standard library only).
 
 Without the CLI, a clone and a symlink do the same for Claude Code:
 
@@ -90,9 +103,11 @@ style is ordinary D2: a `vars` block with the colours, a paper colour and a few 
 Edit `style.d2` to change the master, then copy it over a repo's `_style.d2` and re-render. The
 colour keys are explained at the top of the file.
 
-`references/` holds the two notes the skill reads while drawing: which diagram fits which question,
-and the D2 syntax that is easy to get wrong. `diagrams/` holds the worked example for each type
-above, which the skill reads before drawing that type.
+`references/` holds the notes the skill reads while drawing: which diagram fits which question,
+the D2 syntax that is easy to get wrong, and how to write a class diff's spec. `diagrams/` holds
+the worked example for each type above, which the skill reads before drawing that type.
+`scripts/class-diff.py` does the one thing d2 can't: it colours single class members and makes
+them pulse.
 
 `VERSION` is what the update hint compares. Bump it in any PR that changes how the skill behaves;
 README and example tweaks can leave it alone.
