@@ -193,13 +193,16 @@ Repo: {
   shape: class
   +items: "[]Item"          # + public, - private, # protected
   -cache: Map
+  "#lock": Mutex            # quoted: a bare # starts a comment and the row silently vanishes
   +find(id string): Item
 }
 Repo -> Store: {target-arrowhead: {shape: triangle; style.filled: false}}   # inheritance
 ```
 
-On `class` and `sql_table` shapes `style.fill` colours the header and `style.stroke` the rows, so
-highlight one with `style.fill`. Composition puts a filled diamond on the whole:
+d2 lists fields before methods, whatever order you declare them in. On `class` and `sql_table`
+shapes `style.fill` colours the header and `style.stroke` the rows, so highlight one with
+`style.fill`. A class's member names take the header colour, so a pale fill leaves them
+unreadable. Composition puts a filled diamond on the whole:
 `order <- line: {source-arrowhead: {shape: diamond; style.filled: true}}`.
 
 ## Sequence diagrams

@@ -1,0 +1,28 @@
+{
+  "pr": 12,
+  "base": "#11",
+  "title": "Refunds move into Payment",
+  "classes": [
+    {"name": "Customer", "members": ["-id: UUID", "+placeOrder()"]},
+    {
+      "name": "Order",
+      "before": ["-id: UUID", "-total: Money", "-refunded: Boolean", "+cancel()"],
+      "after": ["-id: UUID", "-total: Money", "+cancel(): Refund"]
+    },
+    {
+      "name": "Payment",
+      "before": ["-amount: Money", "#gateway: Gateway"],
+      "after": ["-amount: Money", "#gateway: Gateway", "+refund(amount: Money): Refund"]
+    },
+    {"name": "Refund", "in": "after", "members": ["-amount: Money", "-reason: String"]},
+    {"name": "RefundService", "in": "before", "members": ["+refund(order: Order): Money"]}
+  ],
+  "edges": [
+    {"from": "Customer", "to": "Order", "label": "places"},
+    {"from": "Order", "to": "Payment", "label": "paid by"},
+    {"from": "Order", "to": "Payment", "label": "refunds via", "in": "after"},
+    {"from": "Payment", "to": "Refund", "label": "issues", "in": "after"},
+    {"from": "RefundService", "to": "Order", "label": "refunds", "in": "before"},
+    {"from": "RefundService", "to": "Payment", "label": "reverses", "in": "before"}
+  ]
+}

@@ -71,7 +71,8 @@ traffic goes (service dependency map).
 - Shows: entities, their fields and methods, and the relationships and cardinality between them.
 - Use when: agreeing on a domain model or data model before building.
 - Skip when: the audience does not care about the code model; it gets noisy fast. For the tables
-  of an existing database, draw an ER diagram (below).
+  of an existing database, draw an ER diagram (below); for what a refactoring PR moves between
+  classes, a class diff (`class-diff.md`).
 - D2: `shape: class` with `-field: Type` and `+method()`; cardinality as arrowhead labels
   (`source-arrowhead: 1`, `target-arrowhead: "0..*"`); composition as a filled diamond on a `<-`
   edge; inheritance as a hollow triangle. elk, `direction: right`.
@@ -101,6 +102,7 @@ traffic goes (service dependency map).
 | Lifecycle, modes, transitions | State diagram | Plain shapes for states, `shape: circle` for initial/final, labelled edges for events, `style.stroke-dash` for optional transitions | dagre, `direction: right` |
 | Where something sits in a hierarchy (org, taxonomy, file tree) | Tree | The sitemap recipe: `--` lines from parent to child | elk, `direction: down` |
 | Compare options side by side, a matrix, a dashboard | Grid | `grid-rows` / `grid-columns` on a container, `grid-gap`; cells are plain shapes or markdown blocks | no edges inside grids |
+| Which members and arrows a refactoring PR moves | Class diff | Written by `scripts/class-diff.py` from a JSON spec: what the PR removes pulses red, then what it adds pulses green | one board, animated SVG; follow `class-diff.md` |
 | Anything I ask to be "animated": data or traffic moving through the system | Animated lines | One board, `style.animated: true` on the connections, numbered edge labels for order | SVG plus a still PNG; see the example below |
 | The same system in several stages, and only when asked for a step-by-step walkthrough | Steps walkthrough | `steps: { 1: {...}; 2: {...} }`, each step inherits the previous; render with `--animate-interval` to svg | follow the walkthrough recipe below |
 | Alternatives of one baseline (happy path vs error, before vs after) | Scenarios | `scenarios: { error: {...} }` inherits the root board | render one with `--target scenarios.error` or animate |

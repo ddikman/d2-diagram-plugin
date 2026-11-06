@@ -2,18 +2,21 @@
 name: d2
 description: >-
   Draw diagrams with D2 (d2lang) in my personal style: sequence, flow and process diagrams, C4
-  system context, deployment, component and class diagrams, sitemaps, service dependency maps,
-  architecture, ER/SQL schemas, state machines, and any picture for a README, design doc, PR or
-  slide. Writes a .d2 source next to a rendered PNG (default), SVG or an animated SVG whose lines
-  flow. Use whenever I ask to diagram, draw, sketch, visualise or map out a system, flow, process,
-  pipeline, architecture, infrastructure or site structure, or mention D2 or a .d2 file.
+  system context, deployment, component and class diagrams, animated class diffs of a refactoring
+  PR, sitemaps, service dependency maps, architecture, ER/SQL schemas, state machines, and any
+  picture for a README, design doc, PR or slide. Writes a .d2 source next to a rendered PNG
+  (default), SVG or an animated SVG whose lines flow. Use whenever I ask to diagram, draw, sketch,
+  visualise or map out a system, flow, process, pipeline, architecture, infrastructure or site
+  structure, or mention D2 or a .d2 file.
 argument-hint: "[what to draw | path/to/file.d2] [as svg|animated]"
 compatibility: >-
   Needs the d2 CLI; when it is missing the skill asks before installing it (Homebrew on macOS,
   otherwise the official install script into ~/.local). PNG output needs d2's one-time Chromium
-  download, which is also asked about first.
+  download, which is also asked about first. Class diffs also need python3 (3.9 or later, standard
+  library only).
 allowed-tools:
   - Bash(d2 *)
+  - Bash(python3 ${CLAUDE_SKILL_DIR}/scripts/class-diff.py *)
   - Bash(curl -fsS --max-time 3 https://raw.githubusercontent.com/ddikman/d2-diagram-plugin/main/VERSION)
   - Read
   - Write
@@ -48,7 +51,7 @@ style: !`ls docs/diagrams/_style.d2 diagrams/_style.d2 2>/dev/null || echo "none
 ## Drawing
 
 1. **Pick the type from the question** the reader has: one diagram, one argument. My everyday three
-   cover most requests; the other six are for when the question matches.
+   cover most requests; the rest are for when the question matches.
 
    | The reader asks | Draw | Start from |
    |---|---|---|
@@ -61,14 +64,18 @@ style: !`ls docs/diagrams/_style.d2 diagrams/_style.d2 2>/dev/null || echo "none
    | Which entities, with which fields and cardinalities? | Class | `class.d2` |
    | Which pages and routes exist? | Sitemap | `sitemap.d2` |
    | Where does live traffic go, and where do errors sit? | Service dependency map | `service-dependency-map.d2` |
+   | What does this refactoring PR move between classes? | Class diff | `class-diff.json` |
 
-   Read the matching example in `${CLAUDE_SKILL_DIR}/diagrams/` before writing; all nine draw one
+   Read the matching example in `${CLAUDE_SKILL_DIR}/diagrams/` before writing; they all draw one
    small online shop. When the choice is not obvious,
    `${CLAUDE_SKILL_DIR}/references/diagram-types.md` says when to use and skip each type and
    covers what else D2 draws (ER schemas, state machines, grids). A request that mixes two
-   questions gets two diagrams.
+   questions gets two diagrams. A class diff is generated, not written: read
+   `${CLAUDE_SKILL_DIR}/references/class-diff.md`, write its spec, and in place of steps 3 to 5 run
+   `python3 ${CLAUDE_SKILL_DIR}/scripts/class-diff.py <diagrams folder>/<slug>.json`; for step 6,
+   check the two frames it prints as that file says.
 2. **Existing diagram?** If the request names a `.d2` file or matches one in the diagrams folder,
-   edit that file rather than starting over.
+   edit that file (for a class diff, its `.json`) rather than starting over.
 3. **Write `docs/diagrams/<slug>.d2`.** Line 1 is `...@_style`, then a blank line, `direction:`
    (sequence diagrams and grids have none) and the content. Labels of three or four words, detail
    in `tooltip` or `|md` blocks, at most 30 nodes per board, one level of abstraction, and a label
@@ -122,7 +129,8 @@ style: !`ls docs/diagrams/_style.d2 diagrams/_style.d2 2>/dev/null || echo "none
 ## Changing the style
 
 `style.d2` in this skill is the master; `_style.d2` in a repo is a copy. To restyle a repo, copy the
-master over its `_style.d2` and re-render every `.d2` there except `_style.d2` itself. Colour keys
+master over its `_style.d2` and re-render every `.d2` there except `_style.d2` itself; a class diff
+is re-made by re-running its script on its `.json`, since plain d2 drops the pulse. Colour keys
 are explained at the top of the file. Keep the `***` rules as triple globs (only those survive the
 import) and never put `style.3d` or `style.double-border` behind a glob: d2 rejects them on
 cylinders, people, queues and tables, and `d2 validate` will not warn you, so check style edits by
